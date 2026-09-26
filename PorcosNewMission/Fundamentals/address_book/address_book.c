@@ -199,6 +199,7 @@ void destroy_book(struct Contact *head) {
 
     head=NULL;
 }
+/*
 int main(void)
 {
 char* gina = malloc(5 * sizeof(char));
@@ -214,3 +215,4 @@ insert_contact(&head, 1, curtis);
 destroy_book(head);
 // every contact of the list has been freed
 }
+*/

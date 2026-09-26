@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-std=c99 -pedantic -Werror -Wall -Wextra -Wvla
-NAME= ff
+NAME=printer
 
 SRC=fibo.c hello_world.c printer.c
 OBJ=$(SRC:.c=.o)
