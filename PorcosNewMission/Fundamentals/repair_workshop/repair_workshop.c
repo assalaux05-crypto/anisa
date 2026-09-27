@@ -12,7 +12,7 @@ void add_repair(struct Repair **head, struct Repair *r) {
         return ;
     }
     
-
+ /*
     if(*head==NULL)
     {
         r->next=NULL;
@@ -26,7 +26,10 @@ void add_repair(struct Repair **head, struct Repair *r) {
         act=act->next;
     }
     act->next=lst;
-    *head=r;
+    *head=r;*/
+   //yeah tanq insertion at begin sema 
+   r->next=*head;
+   *head=r;
 
 
 
@@ -71,41 +74,61 @@ FILE* f=fopen(filename,"rb");
 if(!f)return NULL;
 
 struct Repair* head=NULL;
-    while(!feof(f)){
-        struct Repair* r=malloc(sizeof(struct Repair));
-        if(!r)
+    while (1)
+{
+    struct Repair *r = malloc(sizeof(struct Repair));
+
+    if (!r)
+    {
+        fclose(f);
+        while (head != NULL)
         {
-            fclose(f);
-            struct Repair* suiv=head->next;
-            while(head!=NULL)
-            {
-                free(head);
-                head=suiv;
-            
-            }
-            return NULL;
+            struct Repair *suiv = head->next;
+            free(head);
+            head = suiv;
         }
-        if(fread(r->client,sizeof(r->client),1,f)!=1
-        || fread(r->repair_type,sizeof(r->repair_type),1,f)!=1
-        ||fread(r->date,sizeof(r->date),1,f)!=1
-        || fread(&r->cost,sizeof(r->cost),1,f)!=1
-)
+        return NULL;
+    }
+
+    if (fread(r->client, sizeof(r->client), 1, f) != 1)
+    {
+        if (feof(f))
         {
             free(r);
-            fclose(f);
-            struct Repair* suiv=head->next;
-
-             while(head!=NULL)
-            {
-                free(head);
-                head=suiv;
-            
-            }
-            return NULL;
+            break;
         }
-        r->next=NULL;
-        add_repair(&head,r);
+
+        free(r);
+        fclose(f);
+
+        while (head != NULL)
+        {
+            struct Repair *suiv = head->next;
+            free(head);
+            head = suiv;
+        }
+        return NULL;
     }
+
+    if (fread(r->repair_type, sizeof(r->repair_type), 1, f) != 1
+        || fread(r->date, sizeof(r->date), 1, f) != 1
+        || fread(&r->cost, sizeof(r->cost), 1, f) != 1)
+    {
+        free(r);
+        fclose(f);
+
+        while (head != NULL)
+        {
+            struct Repair *suiv = head->next;
+            free(head);
+            head = suiv;
+        }
+        return NULL;
+    }
+
+    r->next = NULL;
+    add_repair(&head, r);
+}
 fclose(f);
 return rev(head);
 }

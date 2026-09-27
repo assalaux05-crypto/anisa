@@ -61,7 +61,7 @@ struct PilotResult *load_tournament_results(char **pilots_names) {
     int i=0;
     struct PilotResult* head=NULL;
     struct PilotResult* fin=NULL;
-    struct PilotResult* box=NULL;
+   
     while(pilots_names[i]!=NULL)
     {
         char file[128];
@@ -72,18 +72,21 @@ struct PilotResult *load_tournament_results(char **pilots_names) {
         if(!f)
         {
             printf("Error : Could not open file\n");
-            break;
+            destroy_results(head);
+            return NULL;
         }
-        box=malloc(sizeof(struct PilotResult));
+         struct PilotResult* box=malloc(sizeof(struct PilotResult));
         if(!box)
         {
             fclose(f);
+            destroy_results(head);
             return NULL;
         }
         if(fscanf(f,"%d",&score)!=1)
         {
             free(box);
             fclose(f);
+            destroy_results(head);
             return NULL;
         }
         strcpy(box->name,pilots_names[i]);
@@ -105,13 +108,6 @@ struct PilotResult *load_tournament_results(char **pilots_names) {
         fclose(f);
         
     }
-
-    while(box!=NULL)
-    {
-        struct PilotResult* suiv=box->next;
-        free(box);
-        box=suiv;
-    }
     
     return head;
 
@@ -121,33 +117,26 @@ struct PilotResult *load_tournament_results(char **pilots_names) {
 
 struct PilotResult *sort_results_by_score(struct PilotResult *head)
 {
-    if (head == NULL)
-        return NULL;
-
-    int swap = 1;
-
-    while (swap == 1)
+ if (head == NULL)return NULL;
+int swap = 1;
+while (swap == 1)
     {
         swap = 0;
         struct PilotResult *lst = head;
-
         while (lst != NULL && lst->next != NULL)
         {
             if (lst->score < lst->next->score)
             {
-                struct PilotResult *lstno = lst->next;
-                struct PilotResult *nlstno = lst->next->next;
-
-                struct PilotResult tmp = *lst;
-                *lst = *lstno;
-                *lstno = tmp;
-
-                lst->next = lstno;
-                lst->next->next = nlstno;
-
+                char name[64];
+                int score;
+                strcpy(name, lst->name);
+                strcpy(lst->name, lst->next->name);
+                strcpy(lst->next->name, name);
+                score = lst->score;
+                lst->score = lst->next->score;
+                lst->next->score = score;
                 swap = 1;
             }
-
             lst = lst->next;
         }
     }
