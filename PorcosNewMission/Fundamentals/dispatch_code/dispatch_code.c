@@ -15,10 +15,10 @@ void embed_hidden_message(char *cover_text, int stride, const char *hidden)
     if (stride <=0 || cover_text==NULL || hidden==NULL)
     {
         printf("Error : Invalid Parameter\n");
+        return;
 
     }
-    else
-    {
+   
         int len=count(hidden);
         int size=count(cover_text);
         for(int i=0;i<len;i++)
@@ -29,8 +29,8 @@ void embed_hidden_message(char *cover_text, int stride, const char *hidden)
            }
         cover_text[i*stride]=hidden[i];
 
+
         }
-    }
     
 
 }
@@ -46,7 +46,6 @@ return 0;
 }
 */
 
-
 void extract_hidden_message(const char *cover_text, int stride, char *hidden_out, size_t size) 
 {
     if (stride <=0 || cover_text==NULL || hidden_out==NULL)
@@ -57,14 +56,11 @@ void extract_hidden_message(const char *cover_text, int stride, char *hidden_out
     else
     {
         size_t taille=count(cover_text);
-        for(size_t i=0;i<size;i++)
+        size_t i=0;
+        while(i*stride <=taille)
         {
-            if (i*stride>=taille)
-           {
-            hidden_out[i]='\0';
-            break;
-           }
             hidden_out[i]=cover_text[i*stride];
+            i++;
         }
         hidden_out[size]='\0';
     }

@@ -52,18 +52,10 @@ void free_squadron(struct squadron *s)
         struct seaplane* suiv=lst->back;
         free(lst);
         lst=suiv;
-        s->size--;
+        
   
     }
-    /*queue both sides => au cas avions quon a pas pu au debut */
-    lst = s->tail;
-    while (lst != NULL && s->size > 0)
-    {
-        struct seaplane *prev = lst->front;
-        free(lst);
-        s->size--;
-        lst = prev;
-    }
+    
     free(s);
 
 
@@ -90,7 +82,8 @@ void squadron_prepend(struct squadron *s, struct seaplane *p)
     {
         p->front = NULL;
         p->back = s->head;       
-        s->head->front = p;      
+        s->head->front = p;
+        s->head=p;      
     }
 
     s->size++;

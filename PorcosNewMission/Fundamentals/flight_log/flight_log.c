@@ -11,13 +11,22 @@ struct Mission
 
 struct Mission *alloc_missions(size_t n)
 {
-struct Mission* arr=malloc(n*sizeof(struct Mission));
-if (arr==NULL)
-{
-    printf("Error : Could not allocate memory\n");
-    return NULL;
-}
-return arr ;
+    struct Mission* arr=malloc(n*sizeof(struct Mission));
+    if (arr==NULL)
+    {
+        printf("Error : Could not allocate memory\n");
+        return NULL;
+    }
+    for(size_t i=0;i<n;i++)
+    {
+        arr[i].date=NULL;
+        arr[i].mission_type=NULL;
+        arr[i].bounty=0.0;
+
+
+    }
+    
+    return arr ;
 }
 
 void init_mission(struct Mission *missions, size_t i, char *date, char *type, double bounty)
@@ -31,7 +40,7 @@ void init_mission(struct Mission *missions, size_t i, char *date, char *type, do
         missions[i].date=date;
         missions[i].mission_type=type;
         missions[i].bounty=bounty;
-        return ;
+        
 }
 void free_missions(struct Mission *missions, size_t n)
 {

@@ -27,6 +27,7 @@ void simulate_pilot(const char *pilot_name) {
         }
         i++;
     }
+    score=score%1000;
     char filename[128];
     snprintf(filename,sizeof(filename),"result_%s.txt",pilot_name);
     FILE* f=fopen(filename,"w");
@@ -60,6 +61,7 @@ struct PilotResult *load_tournament_results(char **pilots_names) {
     int i=0;
     struct PilotResult* head=NULL;
     struct PilotResult* fin=NULL;
+    struct PilotResult* box=NULL;
     while(pilots_names[i]!=NULL)
     {
         char file[128];
@@ -72,7 +74,7 @@ struct PilotResult *load_tournament_results(char **pilots_names) {
             printf("Error : Could not open file\n");
             break;
         }
-        struct PilotResult* box=malloc(sizeof(struct PilotResult));
+        box=malloc(sizeof(struct PilotResult));
         if(!box)
         {
             fclose(f);
@@ -103,6 +105,13 @@ struct PilotResult *load_tournament_results(char **pilots_names) {
         fclose(f);
         
     }
+
+    while(box!=NULL)
+    {
+        struct PilotResult* suiv=box->next;
+        free(box);
+        box=suiv;
+    }
     
     return head;
 
@@ -130,8 +139,8 @@ struct PilotResult *sort_results_by_score(struct PilotResult *head)
                 struct PilotResult *nlstno = lst->next->next;
 
                 struct PilotResult tmp = *lst;
-                *lst = *(lst->next);
-                *(lst->next) = tmp;
+                *lst = *lstno;
+                *lstno = tmp;
 
                 lst->next = lstno;
                 lst->next->next = nlstno;
@@ -183,7 +192,11 @@ void run_adriatic_tournament(char **pilots_names)
 
         if (pid < 0)
         {
-            return;
+            for(int i=0; i<count;i++)
+            {
+                wait(NULL);
+            }
+            return ;
         }
 
         if (pid == 0)

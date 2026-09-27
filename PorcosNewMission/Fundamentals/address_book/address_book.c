@@ -37,6 +37,7 @@ void insert_contact(struct Contact **head, size_t index, char *name) {
         return;
 
     }
+
     for(size_t i=0;i<index-1&& lst->next!=NULL ;i++)
     {
         lst=lst->next;
@@ -44,9 +45,6 @@ void insert_contact(struct Contact **head, size_t index, char *name) {
    
         box->next=lst->next;
         lst->next=box;
-    
-    
-
 }
 void remove_contact(struct Contact **head, size_t index) {
 
@@ -64,9 +62,23 @@ void remove_contact(struct Contact **head, size_t index) {
             free(tete->name);
             free(tete);
             return ;
+        }/*
+        struct Contact* tortu=head;
+        struct Contact* lievre=head;
+        while(lievre!=NULL && lievre->next!=NULL)
+        {
+            tortu=tortu->next;
+            lievre=lievre->next->next;
         }
+        if (lievre== tortu)
+        {
+            printf("Error : Loop detected\n");
+            return;
+        }
+        */
         struct Contact* el=*head;
         size_t len=0;
+        /* gerer cycle liste*/
         while(el!=NULL)
         {
             el=el->next;
@@ -127,6 +139,7 @@ void print_book(struct Contact *head) {
     if(head==NULL)
     { 
         printf("\n");
+        return;
     }
     struct Contact* tortu=head;
     struct Contact* lievre=head;
@@ -134,11 +147,11 @@ void print_book(struct Contact *head) {
     {
         tortu=tortu->next;
         lievre=lievre->next->next;
-    }
-    if (lievre== tortu)
+        if (lievre== tortu)
     {
         printf("Error : Loop detected\n");
         return;
+    }
     }
     struct Contact* lst=head;
     while(lst->next!=NULL)
@@ -181,11 +194,13 @@ void destroy_book(struct Contact *head) {
     {
         t=t->next;
         l=l->next->next;
-    }
-    if(l==t)
+        if(l==t)
     {
         printf("Error : Loop detected\n");
+        return;
     }
+    }
+    
     struct Contact* lst=head;
     while(lst!=NULL)
     {
@@ -196,8 +211,6 @@ void destroy_book(struct Contact *head) {
         lst=suiv;
     }
     /*free(lst);*/
-
-    head=NULL;
 }
 /*
 int main(void)

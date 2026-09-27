@@ -16,7 +16,6 @@
 
 */
 
-
 int write_pirates_file(const char *filename, const struct Pirate *pirates, size_t n)
 {
 
@@ -30,7 +29,6 @@ int write_pirates_file(const char *filename, const struct Pirate *pirates, size_
 	FILE* file=fopen(filename,"w");
 	if (file==NULL)
 	{
-		printf("Error : Invalid Parameter\n");
 		return 1;
 
 	}
@@ -38,36 +36,34 @@ int write_pirates_file(const char *filename, const struct Pirate *pirates, size_
 	for (size_t i=0; i<n;i++)
 	{
 
-		if(fprintf(file, "%s,%s,%d\n",pirates[i].name,pirates[i].plane,pirates[i].danger_level)!=EOF)
-		{
-
-			continue;
-
-		}
-		else
+		if(fprintf(file, "%s,%s,%d\n",pirates[i].name,pirates[i].plane,pirates[i].danger_level)<0)
 		{
 			fclose(file);
 			return 1;
+
 		}
+		
 	}
 		fclose(file);
 		return 0;
 	}
 
 
-
-
-
 int parse_line(char *line, struct Pirate *p) {
 
 	if (line ==NULL || p==NULL)return 1;
 	size_t len=strlen(line);
-	if(len <4 || line[len-1]!='\n')return 1;
+	if(len ==0 || line[len-1]!='\n')return 1;
 
 	char* token=strtok(line,",");
-	if(token ==NULL)return 1;
+	if(token ==NULL || token[0]=='\0')return 1;
+	if(strlen(token)>=sizeof(p->name))
+	{
+		return 1;
+	}
 	strcpy(p->name,token);
 	token =strtok(NULL,",");
+	if(token ==NULL || token[0]=='\0')return 1;
 	strcpy(p->plane,token);
 	token=strtok(NULL,",");
 	p->danger_level=atoi(token);
@@ -100,7 +96,7 @@ int read_pirates_file(const char *filename, struct Pirate *pirates, size_t n)
 	FILE* f=fopen(filename,"r");
 	if(!f)
 	{
-		printf("Error : Invalid Parameter\n");
+		printf("Error: Could not open file\n");
 		return 1;
 	}
 	char *line = NULL;
@@ -116,8 +112,8 @@ int read_pirates_file(const char *filename, struct Pirate *pirates, size_t n)
 			free(line);
 			return 1;
 		}
-		int status= parse_line(line,&pirates[i]);
-			if (status!=0)
+		/*int status= parse_line(line,&pirates[i]);*/
+			if (parse_line(line,&pirates[i])!=0)
 			{
 				fclose(f);
 				free(line);

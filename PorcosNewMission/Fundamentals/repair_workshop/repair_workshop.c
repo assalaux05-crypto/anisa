@@ -1,5 +1,5 @@
 #include "repair_workshop.h"
-#include <string.h>
+
 
 
 
@@ -71,26 +71,41 @@ FILE* f=fopen(filename,"rb");
 if(!f)return NULL;
 
 struct Repair* head=NULL;
-struct Repair* r=malloc(sizeof(struct Repair));
-if(!r)
-{
-    fclose(f);
-    return NULL;
-}
+    while(!feof(f)){
+        struct Repair* r=malloc(sizeof(struct Repair));
+        if(!r)
+        {
+            fclose(f);
+            struct Repair* suiv=head->next;
+            while(head!=NULL)
+            {
+                free(head);
+                head=suiv;
+            
+            }
+            return NULL;
+        }
+        if(fread(r->client,sizeof(r->client),1,f)!=1
+        || fread(r->repair_type,sizeof(r->repair_type),1,f)!=1
+        ||fread(r->date,sizeof(r->date),1,f)!=1
+        || fread(&r->cost,sizeof(r->cost),1,f)!=1
+)
+        {
+            free(r);
+            fclose(f);
+            struct Repair* suiv=head->next;
 
-while (fread(r,sizeof(struct Repair),1,f)>0)
-{
-    r->next=NULL;
-    add_repair(&head,r);
-    r=malloc(sizeof(struct Repair));
-    if(!r)
-    {
-        fclose(f);
-        return NULL;
+             while(head!=NULL)
+            {
+                free(head);
+                head=suiv;
+            
+            }
+            return NULL;
+        }
+        r->next=NULL;
+        add_repair(&head,r);
     }
-
-}
-free(r);
 fclose(f);
 return rev(head);
 }
@@ -168,10 +183,10 @@ struct Repair *sort_repairs(struct Repair *head, int (*compare_fn)(const struct 
             struct Repair* lstnexto=lst->next;
             struct Repair* nlstnexto=lst->next->next;
             
-            struct Repair tmp=*lst;
-            *lst=*(lst->next);
-            *(lst->next)=tmp;
-            
+            struct Repair tmp=*lst;/*A*/
+            *lst=*lstnexto;/*B*/
+            *lstnexto=tmp; 
+
             lst->next=lstnexto;
             lst->next->next=nlstnexto;
                 switchh=1;

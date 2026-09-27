@@ -88,17 +88,17 @@ void run_aerial_duel(int seed) {
   }
   
 
-  if (s1>s2)
+  if (s1<s2)
   {
-    printf("Porco wins!\n");
+    printf("\"Porco wins!\n\"");
   }
-  else if(s2>s1)
+  else if(s2<s1)
   {
-    printf("Curtis wins!\n");
+    printf("\"Curtis wins!\n\"");
   }
   else 
   {
-    printf("It's a tie!\n");
+    printf("\"It's a tie!\n\"");
   }
 }
 /*
