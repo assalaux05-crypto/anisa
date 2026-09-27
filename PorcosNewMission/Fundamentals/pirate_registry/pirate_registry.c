@@ -64,8 +64,12 @@ int parse_line(char *line, struct Pirate *p) {
 	strcpy(p->name,token);
 	token =strtok(NULL,",");
 	if(token ==NULL || token[0]=='\0')return 1;
+	if (strlen(token) >= sizeof(p->plane))
+    return 1;
 	strcpy(p->plane,token);
 	token=strtok(NULL,",");
+	if (token == NULL || token[0] == '\0')
+    return 1;
 	p->danger_level=atoi(token);
 	return 0;
 		
@@ -96,7 +100,7 @@ int read_pirates_file(const char *filename, struct Pirate *pirates, size_t n)
 	FILE* f=fopen(filename,"r");
 	if(!f)
 	{
-		printf("Error: Could not open file\n");
+		printf("Error: Could not open file.\n");
 		return 1;
 	}
 	char *line = NULL;
@@ -139,3 +143,5 @@ printf("%s\n",pirates[0].name);
 return status ;
 }
 */
+
+
