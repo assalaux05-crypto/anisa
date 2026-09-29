@@ -45,6 +45,7 @@ void run_aerial_duel(int seed) {
   if(pid1<0 )
   {
     printf("Error : Could not fork.\n");
+    return;
   }
   if(pid1==0)
   {
@@ -63,6 +64,7 @@ void run_aerial_duel(int seed) {
   if(pid2<0 )
   {
     printf("Error : Could not fork.\n");
+    return;
   }
 
   int status;
@@ -90,22 +92,21 @@ void run_aerial_duel(int seed) {
 
   if (s1<s2)
   {
-    printf("\"Porco wins!\n\"");
+    printf("Porco wins!\n");
   }
   else if(s2<s1)
   {
-    printf("\"Curtis wins!\n\"");
+    printf("Curtis wins!\n");
   }
   else 
   {
-    printf("\"It's a tie!\n\"");
+    printf("It's a tie!\n");
   }
 }
-/*
+
 int main(void)
 {
   run_aerial_duel(42);
 // prints "Curtis wins!\n"
 
 }
-*/

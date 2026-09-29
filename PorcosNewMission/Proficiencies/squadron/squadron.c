@@ -44,22 +44,19 @@ struct squadron *create_squadron(void)
 
 void free_squadron(struct squadron *s)
 {
-    if(s==NULL)return ;
-    struct seaplane* lst=s->head;
-    /*tete*/
-    while(lst!=NULL)
+    if (s == NULL)
+        return;
+
+    struct seaplane *lst = s->tail;
+
+    while (lst != NULL)
     {
-        struct seaplane* suiv=lst->back;
+        struct seaplane *suiv = lst->front;
         free(lst);
-        lst=suiv;
-        
-  
+        lst = suiv;
     }
-    
+
     free(s);
-
-
-
 }
 /*
 s->head=a
@@ -139,6 +136,8 @@ num flypast
 */
 void print_plane(const struct squadron *s, const struct seaplane *p)
 {
+    if (s == NULL || p == NULL)
+        return;
     /*plan prmier avec []*/
     if (p == s->head || p == s->tail)
         printf("[%zu]", p->tail_number);
