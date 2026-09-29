@@ -1,0 +1,10 @@
+Savoia S.21;80.0
+Möwe;65.0
+Curtiss;720.0
+Macchi M.5;58.5
+Supermarine S.6
+CANT Z.501;68.0
+Latécoère 521;
+Dornier Wal;54.0
+Fiat CR.42;fast
+Savoia-Marchetti S.55;76.5

@@ -1,0 +1,4 @@
+Savoia S.21 | 41.155556 m/s | FAST
+Möwe | 33.438889 m/s | FAST
+Curtiss | 370.400000 m/s | FAST
+Macchi M.5 | 30.095000 m/s | FAST
