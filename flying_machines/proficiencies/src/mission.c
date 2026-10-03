@@ -57,7 +57,8 @@ struct HangarList *parse_missions(const char *filepath)
     char* porte=strtok(NULL,"|");
     if(!porte)continue;
     int res =porco_parse_code(code);
-    if(!res)continue;
+    if (res == -1)
+    continue;
 
     int len_name=strlen(nom)+1;
     char* name=malloc(len_name*sizeof(char));
@@ -90,8 +91,7 @@ struct HangarList *parse_missions(const char *filepath)
 
     }
     else{
-            mission.has_max_range=atof(porte);
-
+            mission.max_range=atof(porte);
             mission.has_max_range=1;
 
     }

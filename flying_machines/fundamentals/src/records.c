@@ -49,7 +49,7 @@ int write_machine_cards(const char *input_path, const char *output_path)
     char line[222];
     while(fgets(line,sizeof(line),f)!=NULL)
     {
-        if(line[0]=="\n")continue;
+        if(line[0]=='\n')continue;
         
             char* name=strtok(line,";");
             if(!name)
@@ -68,9 +68,9 @@ int write_machine_cards(const char *input_path, const char *output_path)
             double speed=atof(vit);
             double res=porco_knots_to_ms(speed);
            // const char *porco_machine_class(double speed_ms);
-           const char* class=porco_machine_class(speed);
+           const char* class=porco_machine_class(res);
            //NAME | XX.XX m/s | CLASS
-            fprintf(output,"%s | %2f m/s | %s\n",name,res,class);
+            fprintf(output,"%s | %.2f m/s | %s\n",name,res,class);
 
 
 

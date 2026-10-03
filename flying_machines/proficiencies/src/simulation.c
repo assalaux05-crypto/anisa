@@ -47,12 +47,23 @@ struct FlightPoint *simulate_flight(struct Machine machine, double dt, int *nb_p
     int i=1;
     while(1)
     {
-        if(c==nb)
+        if(i>=c)
         {
             c*=2;
-            points=realloc(points,c*sizeof(struct FlightPoint));
+            // handl realloc erreur 
+            struct FlightPoint *box =
+                realloc(points, c * sizeof(struct FlightPoint));
+
+            if (box == NULL)
+            {
+                free(points);
+                return NULL;
+            }
+
+            points = box;
      
         }
+
         x=x+vx*dt;
         y=y+vy*dt;
         vy=vy-9.81*dt;
@@ -67,7 +78,8 @@ struct FlightPoint *simulate_flight(struct Machine machine, double dt, int *nb_p
         }
         i++;
     }
-    *nb_points=nb;// calcul pas bon 
+    //ajouter le premier point initialiser en haut points[0]
+    *nb_points=nb+1;// calcul pas bon 
     return points;
 }
 
@@ -101,7 +113,7 @@ struct Wind parse_environment(const char *filepath)
             enum WindDirection direction;
         };
         */
-        char* info=strtok(buff,"=");
+        char* info=strtok(buff,"=\n");
         if(!info)
         
             {
@@ -111,7 +123,8 @@ struct Wind parse_environment(const char *filepath)
         
         if(strcmp(info,"wind_speed")==0)
         {
-            char* speed=strtok(NULL,"=");
+
+            char* speed=strtok(NULL,"=\n");
             if(!speed)
             {
                 fclose(f);
@@ -122,7 +135,7 @@ struct Wind parse_environment(const char *filepath)
         }
         if(strcmp(info,"wind_direction")==0)
         {
-            char* dr=strtok(NULL,"=");
+            char* dr=strtok(NULL,"=\n");
             if(!dr)
             {
                 fclose(f);
@@ -133,7 +146,7 @@ struct Wind parse_environment(const char *filepath)
             
              
             
-            if(strcmp(dr,"headwind"))
+            if(strcmp(dr,"headwind")==0)
             {
                 box.direction=WIND_HEADWIND;
 
@@ -178,11 +191,21 @@ struct FlightPoint *simulate_flight_with_wind(struct Machine machine, struct Win
     int i=1;
     while(1)
     {
-        if(c==nb)
+        if (i >= c)
         {
-            c*=2;
-            points=realloc(points,c*sizeof(struct FlightPoint));
-     
+            c *= 2;
+
+            struct FlightPoint *box =
+                realloc(points, c * sizeof(struct FlightPoint));
+
+            if (box == NULL)
+            {
+                free(points);
+                *nb_points = 0;
+                return NULL;
+            }
+
+            points = box;
         }
         x=x+vx*dt;
         y=y+vy*dt;
@@ -198,7 +221,7 @@ struct FlightPoint *simulate_flight_with_wind(struct Machine machine, struct Win
         }
         i++;
     }
-    *nb_points=nb;// calcul pas bon 
+    *nb_points=nb+1;// calcul pas bon 
     return points;
 }
 

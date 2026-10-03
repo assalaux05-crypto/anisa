@@ -30,7 +30,7 @@ int mission_is_feasible(const struct Mission *mission, const struct Machine *mac
     double s=sin(machine->angle_rad)*sin(machine->angle_rad);
     double max_h=(v*s)/(2*9.81);
     double range=0.0;
-    if(max_h>=mission->target_height)return 0;
+    if(max_h<mission->target_height)return 0;
     if(mission->has_max_range==1)
     {
          range=(v*sin(2*machine->angle_rad))/9.81;

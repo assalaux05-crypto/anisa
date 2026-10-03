@@ -73,7 +73,7 @@ int write_flight_report(const char *filepath, const struct Machine *machines,
       {
         verdict ="grounded";
       }
-      fprintf(f,"name=%s max_height=%2f range=%2f verdict=%s\n",machines[i].name,max_height,range,verdict);
+      fprintf(f,"name=%s max_height=%.2f range=%.2f verdict=%s\n",machines[i].name,max_height,range,verdict);
 
 
     }

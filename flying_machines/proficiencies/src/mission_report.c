@@ -78,7 +78,7 @@ int write_mission_report(const char *filepath, const struct HangarList *missions
                 label, m->code, m->target_height, max_height, range, feasible);
 
     if (m->has_max_range)
-            fprintf(f,"max_range=%.2f\n", m->max_range);
+            fprintf(f," max_range=%.2f\n", m->max_range);
         else
             fprintf(f,"\n");
     }

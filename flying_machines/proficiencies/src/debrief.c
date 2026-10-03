@@ -10,7 +10,7 @@ int write_trajectory_csv(const char *filepath, const char *machine_name,
     fprintf(f,"machine,t,x,y\n");
     for (int i=0; i<nb_points;i++)
     {
-        fprintf(f,"%s,%2f,%2f,%2f\n",machine_name,points[i].t,points[i].x,points[i].y);
+        fprintf(f,"%s,%.2f,%.2f,%.2f\n",machine_name,points[i].t,points[i].x,points[i].y);
 
     }
     fclose(f);
@@ -40,16 +40,16 @@ int write_mission_debrief(const char *filepath, const char *machine_name,
     //if(diff==0.0)return -1;
     
 
-                fprintf(f,"machine=%s landing_distance_difference=%2f\n",machine_name,diff);
+                fprintf(f,"machine=%s landing_distance_difference=%.2f\n",machine_name,diff);
                 fprintf(f,"TRAJECTORY_NO_WIND\n");
                 for(int i=0;i<n1;i++)
                 {
-                    fprintf(f,"t=%2f x=%2f y=%2f\n",points_no_wind[i].t,points_no_wind[i].x,points_no_wind[i].y);
+                    fprintf(f,"t=%.2f x=%.2f y=%.2f\n",points_no_wind[i].t,points_no_wind[i].x,points_no_wind[i].y);
                 }
                 fprintf(f,"TRAJECTORY_WITH_WIND\n");
                 for(int i=0;i<n2;i++)
                 {
-                    fprintf(f,"t=%2f x=%2f y=%2f\n",points_wind[i].t,points_wind[i].x,points_wind[i].y);
+                    fprintf(f,"t=%.2f x=%.2f y=%.2f\n",points_wind[i].t,points_wind[i].x,points_wind[i].y);
                 }
 
 
