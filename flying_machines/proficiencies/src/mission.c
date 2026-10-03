@@ -46,7 +46,6 @@ struct HangarList *parse_missions(const char *filepath)
     char buff[222];
    while(fgets(buff,sizeof(buff),f)!=NULL)
    {
-    struct Mission mission;
 
     if(buff[0]=='\n')continue;
     char* code=strtok(buff,"|");
@@ -59,6 +58,7 @@ struct HangarList *parse_missions(const char *filepath)
     if(!porte)continue;
     int res =porco_parse_code(code);
     if(!res)continue;
+
     int len_name=strlen(nom)+1;
     char* name=malloc(len_name*sizeof(char));
     if(!name)
@@ -75,19 +75,23 @@ struct HangarList *parse_missions(const char *filepath)
         free(name);
         continue;
     }
+    struct Mission mission;
 
     strcpy(name,nom);
     mission.machine_name=name;
     strcpy(codee,code);
     mission.code=codee;
     mission.target_height=atof(hauteur);
-    mission.max_range=atof(porte);
     if(porte[0]=='-')
     {
             mission.has_max_range=0;
+            mission.max_range=0.0;
+
 
     }
     else{
+            mission.has_max_range=atof(porte);
+
             mission.has_max_range=1;
 
     }

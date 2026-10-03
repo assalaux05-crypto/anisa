@@ -3,29 +3,44 @@
 #include "mission.h"
 #include <string.h>
 #include <math.h>
+/*
+struct Machine {
+    char name[64];
+    double velocity;   /* m/s 
+    double angle_rad;  radians 
+struct Mission{
+    char *code;
+    char *machine_name;
+    double target_height;
+    int has_max_range;
+    double max_range;
+};
 
-
+*/
 int mission_is_feasible(const struct Mission *mission, const struct Machine *machine)
 {
     if(mission ==NULL || machine ==NULL)return 0;
     //int porco_parse_code(const char *code);
     int res=porco_parse_code(mission->code);
     if(res==-1)return 0;
+
     int n=strcmp(machine->name,mission->machine_name);
     if (n!=0)return 0;
     double v=machine->velocity*machine->velocity;
     double s=sin(machine->angle_rad)*sin(machine->angle_rad);
     double max_h=(v*s)/(2*9.81);
     double range=0.0;
-    if(mission->has_max_range)
+    if(max_h>=mission->target_height)return 0;
+    if(mission->has_max_range==1)
     {
          range=(v*sin(2*machine->angle_rad))/9.81;
-    }
-            if(max_h>=mission->target_height &&range<=mission->max_range  )
+    
+            if(range>mission->max_range  )
             {
-                return 1;
+                return 0;
             }
-return 0;
+    }
+return 1;
 
 }
 /*
@@ -56,20 +71,7 @@ int mission_compare(const void *a, const void *b)
     return 0;
 }
 
-/*
-struct Machine {
-    char name[64];
-    double velocity;   /* m/s 
-    double angle_rad;  radians 
-struct Mission{
-    char *code;
-    char *machine_name;
-    double target_height;
-    int has_max_range;
-    double max_range;
-};
 
-*/
 const struct Mission *find_best_mission(struct HangarList *missions,
                                   const struct Machine *machines, int machine_count)
 {

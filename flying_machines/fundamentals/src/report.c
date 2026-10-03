@@ -31,7 +31,7 @@ char *generate_flight_summary(double velocity, double angle_rad)
     else str= "LOW ALTITUDE";
 
   int taille=  snprintf(NULL,0,"At %.2f m/s and %.4f rad, the machine reaches a maximum height of %.2f m, covers a range of %.2f m in %.2f s of flight, and is rated: %s.",velocity,angle_rad,height,range,time,str);
-  char * summ=malloc(taille *sizeof(char));
+  char * summ=malloc((taille+1) *sizeof(char));
   if (!summ)return NULL;
   snprintf(summ,taille+1,"At %.2f m/s and %.4f rad, the machine reaches a maximum height of %.2f m, covers a range of %.2f m in %.2f s of flight, and is rated: %s.",velocity,angle_rad,height,range,time,str);
   return summ;
@@ -64,7 +64,7 @@ int write_flight_report(const char *filepath, const struct Machine *machines,
       double ss=sin(aa);
 
       double range =(vv*ss)/9.81;
-      char* verdict="\0";
+      char* verdict;
       if(max_height>threshold)
       {
         verdict="cleared";

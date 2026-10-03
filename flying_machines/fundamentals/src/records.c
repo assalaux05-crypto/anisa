@@ -25,7 +25,7 @@ double total_declared_speed(const char *filepath)
         if(!name)continue;
 
 
-        char* vit=strtok(NULL,",");
+        char* vit=strtok(NULL,";");
         if(!vit)continue;
         double speed=atof(vit);
         double res=porco_knots_to_ms(speed);
@@ -49,8 +49,8 @@ int write_machine_cards(const char *input_path, const char *output_path)
     char line[222];
     while(fgets(line,sizeof(line),f)!=NULL)
     {
-        if(line[0]!="\n")
-        {
+        if(line[0]=="\n")continue;
+        
             char* name=strtok(line,";");
             if(!name)
             {
@@ -72,11 +72,7 @@ int write_machine_cards(const char *input_path, const char *output_path)
            //NAME | XX.XX m/s | CLASS
             fprintf(output,"%s | %2f m/s | %s\n",name,res,class);
 
-        }
-        else
-        {
-            continue;
-        }
+
 
     }
     fclose(f);

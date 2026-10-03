@@ -1,8 +1,8 @@
-#include <stdio.h>
+#include "simulation.h"
+#include <stddef.h>
 #include <stdlib.h>
-#include <string.h>
 #include <math.h>
-
+#include <stdio.h>
 #include "hangar.h"
 #include "matching.h"
 #include "mission.h"
@@ -10,7 +10,7 @@
 
 int main(void)
 {
-
+/*
     struct Machine machines[] = {
         { "Savoia S.21", 52.0, 0.6108652382 }
     };
@@ -34,6 +34,9 @@ int main(void)
         printf("%.2f\n", best->target_height);
   
     hangar_destroy(missions);
+    */
+    write_mission_report("mission_report.txt", missions, machines, machine_count);
+
 
     return 0;
 }
