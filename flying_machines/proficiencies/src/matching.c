@@ -6,7 +6,7 @@
 /*
 struct Machine {
     char name[64];
-    double velocity;   /* m/s 
+    double velocity;   
     double angle_rad;  radians 
 struct Mission{
     char *code;
@@ -96,7 +96,7 @@ const struct Mission *find_best_mission(struct HangarList *missions,
                 {
                     if(mission_is_feasible(m, avion)==1)return m;
                     break;
-
+ 
                 }                 
                 
             }

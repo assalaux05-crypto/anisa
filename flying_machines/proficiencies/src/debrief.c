@@ -1,4 +1,6 @@
 #include "report.h"
+#include <stdio.h>
+#include <simulation.h>
 
 int write_trajectory_csv(const char *filepath, const char *machine_name,
                           const struct FlightPoint *points, int nb_points)
@@ -8,7 +10,7 @@ int write_trajectory_csv(const char *filepath, const char *machine_name,
     fprintf(f,"machine,t,x,y\n");
     for (int i=0; i<nb_points;i++)
     {
-        fprintf(f,"machine_name,%2f,%2f,%2f\n",points[i].t,points[i].x,points[i].y);
+        fprintf(f,"%s,%2f,%2f,%2f\n",machine_name,points[i].t,points[i].x,points[i].y);
 
     }
     fclose(f);
@@ -35,27 +37,28 @@ int write_mission_debrief(const char *filepath, const char *machine_name,
     FILE* f=fopen(filepath,"w");
     if(!f)return -1;
     double diff=compute_landing_distance_difference(points_no_wind,n1,points_wind,n2);
-    if(diff!=0.0)
-    {
+    //if(diff==0.0)return -1;
+    
 
-            fprintf(f,"machine=%s landing_distance_difference=%2f\n",machine_name,diff);
-            fprintf(f,"TRAJECTORY_NO_WIND");
-            for(int i=0;i<n1;i++)
-            {
-                fprintf(f,"t=%2f x=%2f y=%2f\n",points_no_wind[i].t,points_no_wind[i].x,points_no_wind[i].y);
-            }
-            fprintf(f,"TRAJECTORY_WITH_WIND");
-            for(int i=0;i<n2;i++)
-            {
-                fprintf(f,"t=%2f x=%2f y=%2f\n",points_wind[i].t,points_wind[i].x,points_wind[i].y);
-            }
-
-
-        
-        fclose(f);
-        return 0;
+                fprintf(f,"machine=%s landing_distance_difference=%2f\n",machine_name,diff);
+                fprintf(f,"TRAJECTORY_NO_WIND\n");
+                for(int i=0;i<n1;i++)
+                {
+                    fprintf(f,"t=%2f x=%2f y=%2f\n",points_no_wind[i].t,points_no_wind[i].x,points_no_wind[i].y);
+                }
+                fprintf(f,"TRAJECTORY_WITH_WIND\n");
+                for(int i=0;i<n2;i++)
+                {
+                    fprintf(f,"t=%2f x=%2f y=%2f\n",points_wind[i].t,points_wind[i].x,points_wind[i].y);
+                }
 
 
+            
+            fclose(f);
+            return 0;
 
-    }
+
+
+
+
 }

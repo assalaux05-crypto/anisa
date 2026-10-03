@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-
+#include <string.h>
 /*
 
 
@@ -44,7 +44,8 @@ struct FlightPoint *simulate_flight(struct Machine machine, double dt, int *nb_p
 
     points[0].x=0.0;
     points[0].y=0.0;
-    for(int i=1;i<c;i++)
+    int i=1;
+    while(1)
     {
         if(c==nb)
         {
@@ -64,8 +65,9 @@ struct FlightPoint *simulate_flight(struct Machine machine, double dt, int *nb_p
         {
             break;
         }
+        i++;
     }
-    nb_points=&nb;// calcul pas bon 
+    *nb_points=nb;// calcul pas bon 
     return points;
 }
 
@@ -77,25 +79,34 @@ void free_flight_points(struct FlightPoint *points)
 
 struct Wind parse_environment(const char *filepath)
 {
+    /*
+    struct Wind {
+    double speed;
+    enum WindDirection direction;
+};
+    */
+    struct Wind box;
+    box.speed=0.0;
+    box.direction=WIND_HEADWIND;
+
     FILE* f=fopen(filepath,"r");
-    if(!f)return NULL;
+    if(!f)return box;
     /*parse_environment must return a Wind with speed 0.0 and a safe default direction*/
-    struct Wind box=NULL;
     char buff[128];
     while(fgets(buff,sizeof(buff),f)!=NULL)
     {
         /*
             struct Wind{
-    double speed;
-    enum WindDirection direction;
-};
+            double speed;
+            enum WindDirection direction;
+        };
         */
         char* info=strtok(buff,"=");
         if(!info)
         
             {
                 fclose(f);
-                return NULL;
+                return box;
             }
         
         if(strcmp(info,"wind_speed")==0)
@@ -104,7 +115,7 @@ struct Wind parse_environment(const char *filepath)
             if(!speed)
             {
                 fclose(f);
-                return NULL;
+                return box;
             }
             box.speed=atof(speed);
 
@@ -115,18 +126,14 @@ struct Wind parse_environment(const char *filepath)
             if(!dr)
             {
                 fclose(f);
-                return NULL;
+                return box;
 
             }
-            /*
             
-                enum WindDirection{
-                    WIND_HEADWIND,
-                    WIND_TAILWIND
-                };
-
-            */
-            if(strcmp(d,"headwind"))
+            
+             
+            
+            if(strcmp(dr,"headwind"))
             {
                 box.direction=WIND_HEADWIND;
 
@@ -140,6 +147,7 @@ struct Wind parse_environment(const char *filepath)
     fclose(f);
     return box;
 }
+
 
 struct FlightPoint *simulate_flight_with_wind(struct Machine machine, struct Wind wind,
                                         double dt, int *nb_points)
@@ -156,7 +164,7 @@ struct FlightPoint *simulate_flight_with_wind(struct Machine machine, struct Win
     int c=16;
     int nb=0;
 
-    struct FlightPoint *points = malloc(capacity * sizeof(*points));
+    struct FlightPoint *points = malloc(c* sizeof(*points));
     if (points == NULL)
     {
         *nb_points = 0;
@@ -167,7 +175,8 @@ struct FlightPoint *simulate_flight_with_wind(struct Machine machine, struct Win
 
     points[0].x=0.0;
     points[0].y=0.0;
-    for(int i=1;i<c;i++)
+    int i=1;
+    while(1)
     {
         if(c==nb)
         {
@@ -187,8 +196,9 @@ struct FlightPoint *simulate_flight_with_wind(struct Machine machine, struct Win
         {
             break;
         }
+        i++;
     }
-    nb_points=&nb;// calcul pas bon 
+    *nb_points=nb;// calcul pas bon 
     return points;
 }
 

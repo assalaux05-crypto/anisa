@@ -6,13 +6,15 @@
 #include "porco.h"
 #include "mission.h"
 #include <string.h>
+#include "machine.h"
+#include "simulation.h"
 
 /*
 
 struct Machine {
     char name[64];
-    double velocity;   /* m/s */
-    double angle_rad;  /* radians *
+    double velocity;   
+    double angle_rad;  
 
 
 
@@ -60,12 +62,13 @@ int write_mission_report(const char *filepath, const struct HangarList *missions
         int feasible=0;
         if(avion)
         {
-            porco_write_machine_label(label, sizeof(label), avion);
-            double sin_angle = sin(avion->angle_rad);
-            max_height = (avion->velocity * avion->velocity * sin_angle * sin_angle) / (2.0 * 9.81);
+            //## `int porco_write_machine_label(char *buffer, size_t size, const char *name, double speed_ms);`
+            porco_write_machine_label(label, sizeof(label),avion->name,avion->velocity);
+            
+            max_height = (avion->velocity * avion->velocity * sin(avion->angle_rad )* sin(avion->angle_rad )) / (2.0 * 9.81);
             range = (avion->velocity * avion->velocity * sin(2.0 * avion->angle_rad)) / 9.81;
-            if (mission_is_feasible(m, avion) == 1)
-                feasible = 1;
+            
+            feasible = mission_is_feasible(m, avion);
         }
     
        else{
@@ -75,7 +78,7 @@ int write_mission_report(const char *filepath, const struct HangarList *missions
                 label, m->code, m->target_height, max_height, range, feasible);
 
     if (m->has_max_range)
-            fprintf(f, "max_range=%.2f\n", m->max_range);
+            fprintf(f,"max_range=%.2f\n", m->max_range);
         else
             fprintf(f,"\n");
     }
