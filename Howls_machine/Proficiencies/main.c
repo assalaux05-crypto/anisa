@@ -1,14 +1,17 @@
 #include "tic_tac_toe.h"
+#include <stdio.h>
 
 int main(void)
 {
-    SDL_Window *window = NULL;
-    SDL_Renderer *renderer = NULL;
+ 
 
     /*
      * TODO: Initialize the window
      */
+    SDL_Window *window = NULL;
+    SDL_Renderer *renderer = NULL;
 
+    init_window(&window, &renderer);
     int board[3][3] = { 0 };
     int player = 1;
 
@@ -19,18 +22,41 @@ int main(void)
 
         while (SDL_PollEvent(&event))
         {
-            /*
-             * TODO:
-             * Set running to 0 if an SDL_QUIT event is received or if the
-             * Escape key is pressed
-             *
-             * If a left click happened:
-             *   - Find the clicked cell.
-             *   - Play the corresponding move.
-             *   - Check if one of the players won.
-             *   - Check if the board is full.
-             *   - Print the result and stop the game when it ends.
-             */
+            
+        if (event.type == SDL_QUIT)
+            {
+                running = 0;
+            }
+            else if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_ESCAPE)
+                {
+                    running = 0;
+                }
+            }
+            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                if (event.button.button == SDL_BUTTON_LEFT)
+                {
+                    int cell = get_clicked_cell(event.button.x, event.button.y);
+                    int row = cell / 3;
+                    int col = cell % 3;
+
+                    handle_click(board, row, col, &player);
+
+                    int winner = check_winner(board);
+                    if (winner != 0)
+                    {
+                        printf("Joueur %d a gagne!\n", winner);
+                        running = 0;
+                    }
+                    else if (is_board_full(board))
+                    {
+                        printf("egalité\n");
+                        running = 0;
+                    }
+                }
+            }
         }
 
         /*
@@ -40,6 +66,13 @@ int main(void)
          * - Draw the players' marks.
          * - Render the new frame
          */
+       
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        draw_board(renderer);
+        draw_marks(renderer, board);
+        SDL_RenderPresent(renderer);
     }
 
     terminate(window, renderer);
