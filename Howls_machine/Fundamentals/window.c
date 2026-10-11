@@ -31,8 +31,8 @@ void terminate(SDL_Window *window, SDL_Renderer *renderer)
     (void)renderer;
 
     // TODO
-    SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
     SDL_Quit();
 
 

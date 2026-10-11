@@ -39,22 +39,24 @@ int main(void)
                 if (event.button.button == SDL_BUTTON_LEFT)
                 {
                     int cell = get_clicked_cell(event.button.x, event.button.y);
-                    int row = cell / 3;
-                    int col = cell % 3;
+                    if (cell != -1) {
+                        int row = cell / 3;
+                        int col = cell % 3;
 
-                    handle_click(board, row, col, &player);
+                        handle_click(board, row, col, &player);
 
-                    int winner = check_winner(board);
-                    if (winner != 0)
-                    {
-                        printf("Joueur %d a gagne!\n", winner);
-                        running = 0;
-                    }
-                    else if (is_board_full(board))
-                    {
-                        printf("egalité\n");
-                        running = 0;
-                    }
+                        int winner = check_winner(board);
+                        if (winner != 0)
+                        {
+                            printf("Joueur %d a gagne!\n", winner);
+                            running = 0;
+                        }
+                        else if (is_board_full(board))
+                        {
+                            printf("egalité\n");
+                            running = 0;
+                        }
+                    }  
                 }
             }
         }

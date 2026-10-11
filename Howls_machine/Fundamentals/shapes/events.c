@@ -1,7 +1,8 @@
 #include "shapes.h"
 #include <SDL2/SDL.h>
-int handle_events(SDL_Rect *rectangle)
 #define step 200
+
+int handle_events(SDL_Rect *rectangle)
 {
     (void)rectangle;
      SDL_Event event;
@@ -37,7 +38,7 @@ int handle_events(SDL_Rect *rectangle)
             }                        
         }
         
-        if (rectangle->x >0 )
+        if (rectangle->x <0 )
         {
             rectangle->x=0;
         }
@@ -49,7 +50,7 @@ int handle_events(SDL_Rect *rectangle)
         {
             rectangle->x= WINDOW_WIDTH - rectangle->w;
         }
-        if (rectangle ->y + rectangle->h <0)
+        if (rectangle ->y + rectangle->h > WINDOW_HEIGHT)
         {
             rectangle ->y= WINDOW_HEIGHT - rectangle->h;
         }
