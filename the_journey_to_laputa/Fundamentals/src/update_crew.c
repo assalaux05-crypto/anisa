@@ -270,7 +270,7 @@ int update_crew(struct airship *ship, const char **names, size_t n) {
        {
         for(size_t j=0;j<i;j++)
         {
-             pthread_join(t[j],NULL)!=0;
+             pthread_join(t[j],NULL);
         }
        
         free(grp);
@@ -304,59 +304,26 @@ struct crew_args
 };
 */
 
-    struct crew_args *m=malloc(sizeof(struct crew_args)*n);
-    if(!m)
-    {
-        free(t);
-        free(grp);
-        return 42;
-    }
+    struct crew_args m;
      // oblige psq la grand struct c pour tt le monde 
 
     
 
     for(size_t i=0;i<n;i++)
         {
-            m[i].ship=ship;
-            m[i].name=names[i];
-            m[i].error=0;
+            m.ship=ship;
+            m.name=names[i];
+            m.error=0;
             if(grp[i].found==1)
             {
             
-                if( pthread_create(&t[i],0,remove_pirate,&m[i])!=0)
-                {
-                    for(size_t j=0;j<i;j++)
-                    {
-                        pthread_join(t[j],NULL);
-                       
-                    }
-       
-                free(grp);
-                free(t);
-                free(m);
-                return 42;
-                }
+                remove_pirate(&m);
+                
             }
             else 
             {
                 
-                if( pthread_create(&t[i],0,add_pirate,&m[i])!=0)
-                {
-
-                    for(size_t j=0;j<i;j++)
-                    {
-                        pthread_join(t[j],NULL);
-                      
-                    }
-       
-                    free(grp);
-                    free(t);
-                    free(m);
-                    return 42;
-                }
-                
-                
-                
+                add_pirate(&m);
 
             }
             /*
@@ -369,25 +336,21 @@ struct crew_args
         }
         */
         
-
-
-
-        }
-     res=0;
-    for(size_t i=0;i<n;i++)
-    {
-
-         if(pthread_join(t[i],NULL)!=0)
+        if(m.error!=0)
          {
            
             res=42;
          }
-    }
+
+
+        }
+   
+         
+    
     
 
     free(grp);
     free(t);
-    free(m);
     return res;
 
 
