@@ -93,7 +93,7 @@ struct crew_args
 void *add_pirate(void *arg) { 
 
     struct crew_args*grp=(struct crew_args*)arg;
-    if(!grp || !grp->ship || !grp->name)
+    if(!grp || !grp->ship || !grp->ship->crew  || !grp->name)
     {
         if(grp)
         {
@@ -109,13 +109,14 @@ void *add_pirate(void *arg) {
         i++;
     }*/
     pthread_mutex_lock(&grp->ship->mutex);
-    if(grp->ship->crew->crew_capacity==grp->ship->crew->crew_count)
+    if(grp->ship->crew->crew_capacity<=grp->ship->crew->crew_count)
     {
         grp->error=0;
         pthread_mutex_unlock(&grp->ship->mutex);// tjr je pense a unlock 
 
         return NULL;
     }
+
     size_t i=grp->ship->crew->crew_count;
 
     size_t len=crew_strlen(grp->name);
@@ -133,6 +134,7 @@ void *add_pirate(void *arg) {
 
 
     grp->ship->crew->crew_count++;
+
     pthread_mutex_unlock(&grp->ship->mutex);
 
     
@@ -147,7 +149,7 @@ void *remove_pirate(void *arg) {
 
 
     struct crew_args*grp=(struct crew_args*)arg;
-    if(!grp || !grp->ship || !grp->name)
+    if(!grp || !grp->ship || !grp->name ||!grp->ship->crew)
     {
         if (grp)
         {
@@ -263,16 +265,12 @@ int update_crew(struct airship *ship, const char **names, size_t n) {
         grp[i].crew=ship->crew;
         grp[i].name=names[i];
         grp[i].found=0;
+
        if( pthread_create(&t[i],0,find_pirate_worker,&grp[i])!=0)
        {
         for(size_t j=0;j<i;j++)
         {
-             if(pthread_join(t[j],NULL)!=0)
-            {
-                free(t);
-                free(grp);
-                return 42;
-            }
+             pthread_join(t[j],NULL)!=0;
         }
        
         free(grp);
@@ -280,14 +278,21 @@ int update_crew(struct airship *ship, const char **names, size_t n) {
         return 42;
         }
     }
+
+    int res = 0;
     for(size_t i=0;i<n;i++)
     {
          if(pthread_join(t[i],NULL)!=0)
          {
-            free(t);
-            free(grp);
-            return 42;
+            res = 42;
          }
+    }
+
+    if (res != 0)
+    {
+        free(grp);
+        free(t);
+        return 42;
     }
     
     /*
@@ -308,7 +313,7 @@ struct crew_args
     }
      // oblige psq la grand struct c pour tt le monde 
 
-    pthread_mutex_lock(&ship->mutex);
+    
 
     for(size_t i=0;i<n;i++)
         {
@@ -337,7 +342,6 @@ struct crew_args
                 
                 if( pthread_create(&t[i],0,add_pirate,&m[i])!=0)
                 {
-                    pthread_mutex_unlock(&ship->mutex);
 
                     for(size_t j=0;j<i;j++)
                     {
@@ -364,12 +368,12 @@ struct crew_args
             return 42;
         }
         */
-        pthread_mutex_unlock(&ship->mutex);
+        
 
 
 
         }
-    int res=0;
+     res=0;
     for(size_t i=0;i<n;i++)
     {
 

@@ -27,7 +27,7 @@ int init_engines(struct airship *ship,
 
         
 
-    if(!ship || !requirements || n==0 ||ship->engines!=NULL)return 42;
+    if(!ship || !requirements || n==0 ||ship->engines!=NULL || ship->nb_engine != 0)return 42;
     for(size_t i=0;i<n;i++)
     {
         if(requirements[i]<=0)return 42;
@@ -49,7 +49,7 @@ int init_engines(struct airship *ship,
 
 // fct pour chaque t
 // qd jai cond il faut une bouvle et le lock et unlock
-static void* fct_t(void*arg)
+void* start_engine(void*arg) //just move fct_t to start_engine
 {
 
 
@@ -85,17 +85,24 @@ int start_engines(struct airship *ship) {
 
     for(size_t i=0;i<ship->nb_engine;i++)
     {
+        if (ship->engines[i].started != 0)
+        {
+            pthread_mutex_unlock(&ship->mutex);
+            return 42;
+        }
+        
         s+=ship->engines[i].required_fuel;
     }
 
-    if(ship->fuel<s)return 42;
+    if (ship->fuel < s)
+    {
+        pthread_mutex_unlock(&ship->mutex);
+        return 42;
+    }
+
     pthread_mutex_unlock(&ship->mutex);
 
 
-    for(size_t i=0;i<ship->nb_engine;i++)
-    {
-        if(ship->engines[i].started!=0)return 42;
-    }
 
     pthread_t *t=malloc(sizeof(pthread_t)*ship->nb_engine);
     if(!t)return 42;
@@ -113,7 +120,7 @@ int start_engines(struct airship *ship) {
         boxes[i].ship=ship;
         boxes[i].engine=&ship->engines[i];// faut pas que joublie & 
         boxes[i].working=&s_count;//ptr a voir
-        if(pthread_create(&t[i],0,fct_t,&boxes[i])!=0)
+        if(pthread_create(&t[i],0,start_engine,&boxes[i])!=0)
         {
             for(size_t j=0;j<i;j++)
             {
@@ -167,7 +174,7 @@ struct engine
 void destroy_engines(struct airship *ship) { 
 
 
-    if(!ship || !ship->engines || ship->nb_engine==0)return ;
+    if(!ship || !ship->engines)return ;
 
 
     free(ship->engines);

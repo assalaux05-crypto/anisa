@@ -5,14 +5,18 @@
 
 void *load_worker(void *arg) { 
 
-struct load_args* box=(struct load_args* )arg;
+   struct load_args *box = (struct load_args *)arg;
 
-    pthread_mutex_lock(&box->ship->mutex);
-    box->ship->fuel+=box->amount;
-    pthread_mutex_unlock(&box->ship->mutex);
-return NULL;
+    for (int i = 0; i < box->amount; i++)
+    {
+        pthread_mutex_lock(&box->ship->mutex);
 
+        box->ship->fuel++;
 
+        pthread_mutex_unlock(&box->ship->mutex);
+    }
+
+    return NULL;
 }
 
 
@@ -36,7 +40,12 @@ int load_supplies(struct airship *ship, int n, int amount) {
    pthread_t* t=malloc(sizeof(pthread_t)*n);
    if(!t)return 42;
     struct load_args* arg=malloc(sizeof(struct load_args));
-    if(!arg)return 42;
+     if (!arg)
+    {
+        free(t);
+        return 42;
+    }
+
     
     arg->ship=ship;
     arg->amount=amount;
@@ -51,21 +60,24 @@ int load_supplies(struct airship *ship, int n, int amount) {
                 
             }
             free(arg);
+            free(t);
             return 42;
         }
     }
-    for(int i=0;i<n;i++)
+   int res = 0;
+
+    for (int i = 0; i < n; i++)
     {
-       if(pthread_join(t[i],NULL)!=0)
-       {
-        free(t);
-        free(arg);
-        return 42;
-       }
+        if (pthread_join(t[i], NULL) != 0)
+        {
+            res = 42;
+        }
     }
+
     free(t);
     free(arg);
-    return 0;
+
+    return res;
 
 }
 /*
