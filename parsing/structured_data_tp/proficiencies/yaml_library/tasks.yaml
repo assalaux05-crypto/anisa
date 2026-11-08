@@ -1,0 +1,11 @@
+project: Cat Bureau
+tasks:
+  - id: 1
+    title: Parse CSV
+    status: done
+  - id: 2
+    title: Parse JSON
+    status: todo
+  - id: 3
+    title: Parse YAML
+    status: done

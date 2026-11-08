@@ -6,15 +6,10 @@
 void *load_worker(void *arg) { 
 
 struct load_args* box=(struct load_args* )arg;
-for(int i=0;i<box->amount;i++)
-{
+
     pthread_mutex_lock(&box->ship->mutex);
-    box->ship->fuel+=1;
+    box->ship->fuel+=box->amount;
     pthread_mutex_unlock(&box->ship->mutex);
-
-}
-
-
 return NULL;
 
 
@@ -53,16 +48,22 @@ int load_supplies(struct airship *ship, int n, int amount) {
 
             {
                 pthread_join(t[j],NULL);
-                free(arg);
-                return 42;
+                
             }
-            
+            free(arg);
+            return 42;
         }
     }
     for(int i=0;i<n;i++)
     {
-        pthread_join(t[i],NULL);
+       if(pthread_join(t[i],NULL)!=0)
+       {
+        free(t);
+        free(arg);
+        return 42;
+       }
     }
+    free(t);
     free(arg);
     return 0;
 

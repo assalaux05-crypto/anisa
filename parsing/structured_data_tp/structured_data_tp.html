@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Structured Data — C TP Study Guide</title>
+<style>
+:root{--ink:#17212b;--muted:#5d6b78;--line:#d9e0e7;--blue:#185abd;--pale:#edf4ff;--green:#eaf7ef;--amber:#fff5df;--paper:#fff;--bg:#f2f5f8;--code:#111827}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.62 system-ui,-apple-system,Segoe UI,Arial,sans-serif}
+main{max-width:1120px;margin:28px auto;padding:0 22px 60px}header,.panel,.toc{background:var(--paper);border:1px solid var(--line);border-radius:13px;padding:25px;margin:0 0 18px;box-shadow:0 3px 14px #15253608}
+h1{font-size:2.15rem;line-height:1.2;margin:0 0 8px}h2{font-size:1.55rem;margin:4px 0 15px;padding-bottom:8px;border-bottom:2px solid var(--line)}h3{font-size:1.18rem;margin:24px 0 8px}h4{font-size:1rem;margin:17px 0 7px;color:#23466e}
+p{margin:8px 0}.muted{color:var(--muted)}.kicker{font-size:.82rem;text-transform:uppercase;letter-spacing:.1em;color:var(--blue);font-weight:800}.pill{display:inline-block;padding:3px 9px;border-radius:20px;background:var(--pale);color:var(--blue);font-size:.82rem;font-weight:700;margin:3px 4px 3px 0}
+code,pre{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}code{background:#edf1f5;padding:2px 5px;border-radius:4px;font-size:.92em}pre{background:var(--code);color:#ecf2f9;padding:15px 17px;border-radius:9px;overflow:auto;line-height:1.48;font-size:.88rem;white-space:pre}
+pre code{background:transparent;padding:0;color:inherit}.callout{padding:13px 16px;border-left:4px solid var(--blue);background:var(--pale);border-radius:5px;margin:13px 0}.warn{border-left-color:#c88717;background:var(--amber)}.good{border-left-color:#24864a;background:var(--green)}
+ul,ol{padding-left:24px}li{margin:4px 0}.toc ol{columns:2;column-gap:36px}.toc li{break-inside:avoid}.toc a{color:var(--blue);text-decoration:none}.toc a:hover{text-decoration:underline}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.94rem}th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}th{background:#f1f5f9}.step{font-weight:800;color:var(--blue)}.sig{font-weight:700}.small{font-size:.88rem}.api{display:inline-block;margin:2px 4px 3px 0;padding:2px 7px;border:1px solid var(--line);border-radius:5px;background:#f7f9fb;font-family:ui-monospace,monospace;font-size:.84rem}
+.exercise{padding:12px 15px;border:1px solid var(--line);border-radius:9px;margin:13px 0}.exercise h4{margin-top:0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid>div{background:#f7f9fb;border:1px solid var(--line);padding:12px;border-radius:8px}.footer{color:var(--muted);font-size:.88rem;margin-top:25px}.top{display:block;text-align:right;font-size:.85rem}.top a{color:var(--blue);text-decoration:none}
+@media(max-width:720px){main{padding:0 12px}.grid{grid-template-columns:1fr}.toc ol{columns:1}header,.panel,.toc{padding:18px}h1{font-size:1.7rem}}
+@media print{body{background:white}main{margin:0 auto;padding:0}.panel,.toc,header{box-shadow:none;break-inside:avoid}.exercise{break-inside:avoid}a{color:inherit;text-decoration:none}}
+</style>
+</head>
+<body><main>
+<header id="top">
+  <div class="kicker">C programming · First structured-data TP · Beginner study guide</div>
+  <h1>Structured Data — How to Solve the TP</h1>
+  <p class="muted">A practical guide to the exact exercises, function prototypes, parsing strategy and library APIs in the accompanying <code>structured_data_tp</code> directory.</p>
+  <p><span class="pill">Manual parsing</span><span class="pill">CSV / INI / JSON / YAML / TOML / XML</span><span class="pill">SQLite</span><span class="pill">libcsv</span><span class="pill">cJSON</span><span class="pill">libyaml</span></p>
+  <div class="callout good"><strong>How to use this guide:</strong> open one exercise directory, read its <code>exercise.h</code>, read the matching section here, then implement one function at a time. Compile and run its supplied <code>main.c</code> before moving to the next exercise.</div>
+  <p><strong>Important:</strong> the implementation files in the ZIP are intentionally TODO placeholders. The supplied mains, headers, data and Makefiles are the exercise harness; you still have to implement the functions.</p>
+</header>
+
+<nav class="toc">
+<h2>Contents</h2>
+<ol>
+<li><a href="#method">How to approach an exam TP</a></li>
+<li><a href="#c-tools">C functions you will reuse</a></li>
+<li><a href="#manual-csv">Manual CSV</a></li>
+<li><a href="#ini">INI</a></li>
+<li><a href="#manual-json">Manual JSON subset</a></li>
+<li><a href="#yaml-manual">Manual YAML subset</a></li>
+<li><a href="#toml">TOML</a></li>
+<li><a href="#xml">XML</a></li>
+<li><a href="#sqlite">SQL with SQLite</a></li>
+<li><a href="#libcsv">CSV with libcsv</a></li>
+<li><a href="#cjson">JSON with cJSON</a></li>
+<li><a href="#json-struct">JSON → C struct: full example</a></li>
+<li><a href="#libyaml">YAML with libyaml</a></li>
+<li><a href="#cheatsheet">Library function cheat sheet</a></li>
+<li><a href="#mistakes">Common mistakes and exam checklist</a></li>
+<li><a href="#references">Official API references</a></li>
+</ol>
+</nav>
+
+<section class="panel" id="method">
+<h2>1. How to approach an exam TP</h2>
+<p>In this kind of TP, the statement normally gives you the library, the header to include, the functions available and the function prototype you must implement. You are not expected to invent a parser library. Your job is to connect the provided API to the requested result.</p>
+<ol>
+<li><strong>Read the prototype.</strong> Identify the inputs, output parameters and return convention. For example, <code>int json_library_total_students(const char *filename)</code> returns a count, while a function receiving <code>struct student *out</code> fills a structure supplied by the caller.</li>
+<li><strong>Inspect the data.</strong> Open the fixture file. Draw its structure: object, array, key/value pairs, records, sections or nodes.</li>
+<li><strong>Find the correct API function.</strong> Use the library cheat sheet in this guide. Do not manually split JSON/YAML/quoted CSV in a library exercise.</li>
+<li><strong>Parse once.</strong> A normal library exercise follows: open/read input → parse → navigate nodes → check types → perform the requested operation.</li>
+<li><strong>Use a loop for collections.</strong> An array/list/sequence normally means loop over its elements and process each record.</li>
+<li><strong>Handle failure paths.</strong> Check file opening, parse return value, node existence, type and output writing.</li>
+<li><strong>Release resources.</strong> Close files, delete parser trees/documents and free allocated strings.</li>
+<li><strong>Test a small case.</strong> Run <code>make</code>, then <code>./exo</code>. Also test missing keys, empty arrays and unknown IDs where relevant.</li>
+</ol>
+<div class="callout warn"><strong>Do not start by writing all the code.</strong> First write down the sequence of operations in plain language. Then translate each operation to one C statement or library call.</div>
+<h3>Understand the difference: parse vs CRUD</h3>
+<table><tr><th>Operation</th><th>Meaning</th><th>Typical example</th></tr>
+<tr><td>Parse / read</td><td>Turn the file contents into values your program can inspect.</td><td>Read the grade of student 2.</td></tr>
+<tr><td>Create</td><td>Add a new record/value.</td><td>Add a student to the CSV or database.</td></tr>
+<tr><td>Update</td><td>Change an existing value.</td><td>Change a course room.</td></tr>
+<tr><td>Delete</td><td>Remove a record/value.</td><td>Delete a student by ID.</td></tr>
+<tr><td>Serialize / write</td><td>Convert modified data back into the file format.</td><td>Print the modified cJSON tree and write it to disk.</td></tr></table>
+</section>
+
+<section class="panel" id="c-tools">
+<h2>2. C functions you will reuse</h2>
+<table>
+<tr><th>Function</th><th>What it does</th><th>Where you use it</th></tr>
+<tr><td><code>fopen(path, mode)</code></td><td>Opens a file. Returns <code>NULL</code> if it fails.</td><td>Every manual parser; output files.</td></tr>
+<tr><td><code>fgets(buf, size, fp)</code></td><td>Reads one line at a time, including at most <code>size - 1</code> characters.</td><td>CSV, INI, YAML, TOML.</td></tr>
+<tr><td><code>fgetc(fp)</code></td><td>Reads one character or returns <code>EOF</code>.</td><td>Character-by-character scanning.</td></tr>
+<tr><td><code>fread(buf, 1, n, fp)</code></td><td>Reads a block of bytes; returns how many bytes were read.</td><td>CSV library input, reading a whole JSON file.</td></tr>
+<tr><td><code>fwrite(buf, 1, n, fp)</code></td><td>Writes a block of bytes.</td><td>Writing a reconstructed file.</td></tr>
+<tr><td><code>fprintf(fp, ...)</code>, <code>fputs(s, fp)</code>, <code>fputc(c, fp)</code></td><td>Write formatted text, a string, or one character.</td><td>Manual output files.</td></tr>
+<tr><td><code>fclose(fp)</code></td><td>Closes a file.</td><td>Always close files you opened.</td></tr>
+<tr><td><code>strcmp(a, b)</code></td><td>Returns 0 when two strings are equal.</td><td>Compare names, keys, sections and statuses.</td></tr>
+<tr><td><code>strchr(s, c)</code></td><td>Finds the first occurrence of a character.</td><td>Find <code>=</code>, <code>:</code>, or a comma.</td></tr>
+<tr><td><code>strstr(s, sub)</code></td><td>Finds a substring.</td><td>Simple XML tag search; avoid as a full JSON parser.</td></tr>
+<tr><td><code>strlen(s)</code>, <code>memcpy(dst, src, n)</code></td><td>Get string length; copy bytes.</td><td>Safe field copying.</td></tr>
+<tr><td><code>strtol(s, &amp;end, 10)</code></td><td>Converts text to an integer and lets you detect invalid trailing characters.</td><td>Convert IDs, years, grades and ports.</td></tr>
+<tr><td><code>malloc(n)</code>, <code>free(p)</code></td><td>Allocate and release memory.</td><td>Reading unknown-size files or dynamic arrays.</td></tr>
+<tr><td><code>remove(path)</code>, <code>rename(old, new)</code></td><td>Delete or rename a file.</td><td>Replace a file using a temporary file.</td></tr>
+</table>
+<h3>Why use a temporary file for update/delete?</h3>
+<p>For a small text file, the simplest safe pattern is:</p>
+<ol><li>Open the original file for reading.</li><li>Open <code>temporary.txt</code> for writing.</li><li>Read each record. Write the original record or its modified version to the temporary file.</li><li>Close both files and check errors.</li><li>Replace the original with the temporary file using <code>remove</code>/<code>rename</code> (check their return values).</li></ol>
+<p>This avoids trying to insert or remove bytes in the middle of a text file. In a more robust program, also protect against a failed rename and keep a backup.</p>
+</section>
+
+<section class="panel" id="manual-csv">
+<h2>3. Fundamentals — CSV parsed manually</h2>
+<p><span class="pill">Folder: fundamentals/csv_manual</span><span class="pill">Standard C only</span></p>
+<p>The fixture is simple: one header line, then <code>id,name,grade</code>. This exercise deliberately excludes quoted fields; the quoted-field problem is in the libcsv exercise.</p>
+<pre>id,name,grade
+1,Ada,18
+2,Bob,14
+3,Chihiro,17</pre>
+<h3>Useful functions</h3><span class="api">fopen</span><span class="api">fgets</span><span class="api">strchr</span><span class="api">strtok (only in this simple subset)</span><span class="api">strcmp</span><span class="api">strtol</span><span class="api">fprintf</span><span class="api">fclose</span><span class="api">remove</span><span class="api">rename</span>
+<div class="exercise"><h4><code>csv_count_rows(filename)</code> — count data rows</h4><p><strong>Plan:</strong> open file in read mode; read the first line as the header; then count each successfully read line; close the file; return the number. Return <code>-1</code> if the file cannot be opened.</p><p><strong>Important:</strong> do not count the header. Decide how blank lines should be treated. For this fixture, count non-empty data lines.</p></div>
+<div class="exercise"><h4><code>csv_find_student(filename, id, out, out_size)</code> — find one student</h4><ol><li>Open the file and skip the header.</li><li>For every line, split the simple line into three fields: ID, name and grade.</li><li>Convert the first field to an integer using <code>strtol</code>.</li><li>If the ID equals the requested ID, copy the name into <code>out</code>. Check that the destination buffer is large enough and terminate the string with <code>'\\0'</code>.</li><li>Close the file and return 0. If no matching ID exists, return -1.</li></ol><p><strong>Note:</strong> <code>strtok</code> is acceptable only because this Fundamentals fixture promises that fields are not quoted and names do not contain commas. It is not a correct general CSV parser.</p></div>
+<div class="exercise"><h4><code>csv_add_student(filename, id, name, grade)</code> — append a record</h4><p>Open with mode <code>"a"</code>, which appends at the end. Write one line using <code>fprintf(fp, "%d,%s,%d\\n", ...)</code>. Check <code>fprintf</code> and <code>fclose</code> errors. In a real CSV writer, a name containing a comma or quote must be escaped/quoted; this simple exercise excludes that case.</p></div>
+<div class="exercise"><h4><code>csv_update_grade(filename, id, grade)</code> — update one field</h4><ol><li>Read the original line by line.</li><li>Write the header unchanged to a temporary file.</li><li>For each data row, parse its ID. If it matches, write the same ID and name with the new grade. Otherwise copy the original line.</li><li>Track whether you found the ID. If not found, return -1 and do not replace the original.</li><li>Close both files, then replace the original with the temporary file.</li></ol><p>Do not overwrite the original while you are still reading it.</p></div>
+<div class="exercise"><h4><code>csv_delete_student(filename, id)</code> — remove one record</h4><p>Use the same temporary-file method as update, but simply do not write the matching record. Copy every other line. Track whether the ID was found. If it was not found, report failure and preserve the original.</p></div>
+</section>
+
+<section class="panel" id="ini">
+<h2>4. Fundamentals — INI</h2>
+<p><span class="pill">Folder: fundamentals/ini_manual</span> INI is line based. A section is written between brackets; key/value pairs are written as <code>key=value</code>.</p>
+<pre>[server]
+host=localhost
+port=8080
+
+[display]
+theme=dark</pre>
+<h3>Useful functions</h3><span class="api">fgets</span><span class="api">strchr</span><span class="api">strcmp</span><span class="api">isspace</span><span class="api">strlen</span><span class="api">fprintf</span>
+<p>Write a small helper of your own such as <code>trim(char *s)</code>. It removes spaces, tabs and the newline at the beginning/end of a line. Use <code>isspace((unsigned char)c)</code>; the cast avoids undefined behaviour for negative signed-char values.</p>
+<div class="exercise"><h4><code>ini_get(filename, section, key, out, out_size)</code></h4><ol><li>Read each line with <code>fgets</code> and trim it.</li><li>Ignore empty lines and lines whose first non-space character is <code>#</code> or <code>;</code>.</li><li>If a line begins with <code>[</code> and has a closing <code>]</code>, extract its section name and update a variable such as <code>inside_section</code>.</li><li>Only while <code>inside_section</code> is true, find <code>=</code> using <code>strchr</code>.</li><li>Trim the left and right parts. Compare the left part with the requested key using <code>strcmp</code>.</li><li>Copy the right part into <code>out</code> after checking <code>out_size</code>. Return 0 if found, otherwise -1.</li></ol><p>Why track the section? Because two different sections can contain the same key name.</p></div>
+<div class="exercise"><h4><code>ini_set(filename, section, key, value)</code></h4><p>Rewrite into a temporary file. Track the active section. When the requested section is reached, either replace the matching key line with <code>key=value</code> or copy it. If the key did not exist but the section did, insert the new key before leaving the section. If the section did not exist, append a blank line, a new <code>[section]</code> and the key/value line. Use flags such as <code>section_found</code> and <code>key_written</code> so you do not append duplicates.</p></div>
+<div class="exercise"><h4><code>ini_delete(filename, section, key)</code></h4><p>Use the same line-by-line scan. Do not copy the matching key line while you are inside the requested section. Copy everything else. If the key is not found, report failure according to the prototype's convention.</p></div>
+</section>
+
+<section class="panel" id="manual-json">
+<h2>5. Fundamentals — JSON parsed manually (restricted subset)</h2>
+<p><span class="pill">Folder: fundamentals/json_manual</span><span class="pill">No JSON library in this exercise</span></p>
+<pre>{
+  "course": "Structured Data",
+  "year": 2026,
+  "semester": 1,
+  "students": [
+    {"id": 1, "name": "Ada"},
+    {"id": 2, "name": "Bob"},
+    {"id": 3, "name": "Chihiro"}
+  ]
+}</pre>
+<div class="callout warn"><strong>Important:</strong> this manual JSON exercise supports only the small subset described in its README: top-level strings, non-negative integers, and a top-level <code>students</code> array containing simple objects. It is not a complete JSON parser. Do not use this approach for arbitrary production JSON.</div>
+<h3>Why JSON needs more care</h3><p>A JSON object uses braces, arrays use brackets, keys and strings use quotes, and commas/colons separate values. Whitespace can appear anywhere between tokens. A word such as <code>"year"</code> might occur inside another string, so searching the whole file with <code>strstr</code> is not enough. You must know whether the parser is at the top-level object, inside an array, or inside a string.</p>
+<h3>Small scanner helpers to write</h3>
+<table><tr><th>Helper</th><th>Responsibility</th></tr>
+<tr><td><code>skip_ws(const char **p)</code></td><td>Move the cursor past spaces, tabs, CR and LF.</td></tr>
+<tr><td><code>parse_string(const char **p, char *out, size_t cap)</code></td><td>Expect an opening quote, copy characters until the closing quote, and advance the cursor. In this exercise's limited subset, strings do not require full Unicode escape support.</td></tr>
+<tr><td><code>parse_uint(const char **p, int *out)</code></td><td>Read digits and convert them to a non-negative integer. Reject an empty number and overflow.</td></tr>
+<tr><td><code>skip_value(const char **p)</code></td><td>Skip one supported value while respecting strings, objects and arrays. This is needed when a key is not the one you are searching for.</td></tr></table>
+<p>These are your own helper functions, not predefined C functions. The standard library functions that help are <code>isspace</code>, <code>isdigit</code>, <code>strtol</code>, <code>strlen</code>, <code>memcpy</code> and <code>fread</code>.</p>
+<div class="exercise"><h4><code>json_get_string(filename, key, out, out_size)</code></h4><ol><li>Read the complete file into a null-terminated buffer.</li><li>Set a cursor to the first non-whitespace character and expect <code>{</code>.</li><li>At the top object level, parse a key string, expect <code>:</code>, then inspect the value's first character.</li><li>If the key matches, require that its value begins with a quote, parse the string and copy it to <code>out</code>.</li><li>If it does not match, call your <code>skip_value</code> helper and continue after the comma.</li><li>Return -1 if the key is missing, has the wrong type, the file is malformed or the output buffer is too small.</li></ol></div>
+<div class="exercise"><h4><code>json_get_int(filename, key, out)</code></h4><p>Follow the same top-level object scan. When the key matches, require a digit and parse the integer with your scanner or <code>strtol</code>. Check the end pointer and range. If the matching key has a string or array instead of a number, return -1.</p></div>
+<div class="exercise"><h4><code>json_count_students(filename)</code></h4><ol><li>Scan the root object until the top-level key <code>students</code> is found.</li><li>Require <code>[</code> after the colon.</li><li>Read array elements one by one. In this fixture each element is an object, so require <code>{</code>, parse/skip its fields until its matching <code>}</code>, then increment the count.</li><li>Stop at the array's closing <code>]</code>. Check commas and closing delimiters.</li></ol><p>Count objects, not commas: commas also separate properties inside each student object.</p></div>
+<div class="exercise"><h4><code>json_update_semester(filename, semester)</code></h4><p>Find the top-level <code>semester</code> key using the same scanner. Record the start and end positions of its integer token. Build a new text buffer containing: original text before the value + the new integer text + original text after the value. Write that buffer to a temporary file, then replace the original only if all writes succeed. This preserves the rest of the JSON formatting and fields.</p></div>
+<div class="callout"><strong>Exam tip:</strong> when the exercise says “manual parsing”, no call like <code>cJSON_Parse</code> should appear. When the exercise says “use cJSON”, do not recreate the JSON parser with <code>strstr</code> or manual brace counting.</div>
+</section>
+
+<section class="panel" id="yaml-manual">
+<h2>6. Fundamentals — YAML parsed manually (restricted subset)</h2>
+<p><span class="pill">Folder: fundamentals/yaml_manual</span></p>
+<pre>course: Structured Data
+room: B204
+modules:
+  - CSV
+  - JSON
+  - YAML</pre>
+<p>This version supports top-level scalar lines such as <code>room: B204</code> and a simple list under <code>modules</code>. It does not support the full YAML language.</p>
+<h3>Useful functions</h3><span class="api">fgets</span><span class="api">strchr</span><span class="api">strcmp</span><span class="api">isspace</span><span class="api">fprintf</span>
+<div class="exercise"><h4><code>yaml_get(filename, key, out, out_size)</code></h4><ol><li>Read one line at a time and trim the newline.</li><li>Ignore blank lines and comments beginning with <code>#</code>.</li><li>Find the first <code>:</code>. The left side is the key; the right side is the value.</li><li>Trim both parts. Compare the key with the requested key.</li><li>Copy the scalar value if it fits in the output buffer. Return -1 when missing.</li></ol><p>For this subset, the target scalar is at the top level; do not treat an indented list entry as a top-level property.</p></div>
+<div class="exercise"><h4><code>yaml_count_modules(filename)</code></h4><p>Track when you have read the exact <code>modules:</code> line. After that, count lines whose trimmed content begins with <code>-</code>. Stop when a new non-indented top-level key begins. Ignore comments and blank lines.</p></div>
+<div class="exercise"><h4><code>yaml_set(filename, key, value)</code></h4><p>Rewrite through a temporary file. Replace the matching top-level <code>key: old_value</code> line with <code>key: new_value</code>. If no key exists, append the new top-level line. Do not accidentally insert it inside the <code>modules</code> list.</p></div>
+</section>
+
+<section class="panel" id="toml">
+<h2>7. Fundamentals — TOML parsed manually (restricted subset)</h2>
+<p><span class="pill">Folder: fundamentals/toml_manual</span></p>
+<pre>[database]
+host = "127.0.0.1"
+port = 5432
+
+[app]
+name = "Cat Bureau"</pre>
+<p>TOML sections are called tables and are written as <code>[table_name]</code>. Key/value lines belong to the most recently seen table.</p>
+<h3>Useful functions</h3><span class="api">fgets</span><span class="api">strchr</span><span class="api">strcmp</span><span class="api">isspace</span><span class="api">strtol</span><span class="api">fprintf</span>
+<div class="exercise"><h4><code>toml_get(filename, table, key, out, out_size)</code></h4><ol><li>Read and trim each line.</li><li>If the line begins with <code>[</code>, extract the table name and update a boolean indicating whether the requested table is active.</li><li>Inside the requested table, find <code>=</code>.</li><li>Trim the key and value. Compare the key.</li><li>For this exercise, the target value is a quoted basic string: remove its surrounding quotes and copy it to <code>out</code>.</li></ol></div>
+<div class="exercise"><h4><code>toml_update_int(filename, table, key, value)</code></h4><p>Use the same table-tracking scan. In the requested table, find the key line and replace only its integer value with the new integer. Write all lines to a temporary file. Do not change a similarly named key in another table.</p></div>
+<div class="callout warn">The exercise excludes arrays, dates, inline tables and multiline strings. A real TOML parser must handle those features; this is intentionally a small manual exercise.</div>
+</section>
+
+<section class="panel" id="xml">
+<h2>8. Fundamentals — XML parsed manually (very small subset)</h2>
+<p><span class="pill">Folder: fundamentals/xml_manual</span></p>
+<pre>&lt;?xml version="1.0"?&gt;
+&lt;course&gt;
+  &lt;title&gt;Structured Data&lt;/title&gt;
+  &lt;student&gt;&lt;name&gt;Ada&lt;/name&gt;&lt;/student&gt;
+  &lt;student&gt;&lt;name&gt;Bob&lt;/name&gt;&lt;/student&gt;
+&lt;/course&gt;</pre>
+<h3>Useful functions</h3><span class="api">fopen</span><span class="api">fread</span><span class="api">strstr</span><span class="api">strlen</span><span class="api">memcpy</span><span class="api">fprintf</span>
+<div class="exercise"><h4><code>xml_get_text(filename, name, out, out_size)</code></h4><ol><li>Read the document into a null-terminated string.</li><li>Build/search for the opening tag <code>&lt;name&gt;</code> and locate the matching closing tag <code>&lt;/name&gt;</code>.</li><li>The text between them is the requested content. Check its length against <code>out_size</code>, copy it and append <code>'\\0'</code>.</li><li>Return -1 if the file or either tag is missing.</li></ol><p>This is only valid for the exercise's simple non-nested target elements. A full XML parser must handle attributes, entities, namespaces, CDATA, comments and nesting.</p></div>
+<div class="exercise"><h4><code>xml_count_students(filename)</code></h4><p>Repeatedly search for the exact opening tag <code>&lt;student&gt;</code>, increment a counter and advance the search pointer. Do not count the closing tag <code>&lt;/student&gt;</code>.</p></div>
+<div class="exercise"><h4><code>xml_set_text(filename, name, value)</code></h4><p>Find the opening and closing tags, then rebuild the text as prefix + new value + suffix. Write the rebuilt document to a temporary file and replace the original only after successful writes.</p></div>
+</section>
+
+<section class="panel" id="sqlite">
+<h2>9. Fundamentals — SQL using SQLite's C API</h2>
+<p><span class="pill">Folder: fundamentals/sql_manual</span><span class="pill">Header: sqlite3.h</span><span class="pill">Link: -lsqlite3</span></p>
+<p>SQL is a query language. SQLite stores its database in <code>school.db</code>. First create the database from the supplied script:</p>
+<pre>cd fundamentals/sql_manual
+sqlite3 school.db &lt; school.sql
+make
+./exo</pre>
+<h3>The seven SQLite calls to recognize</h3>
+<table><tr><th>Function</th><th>Purpose</th></tr>
+<tr><td><code>sqlite3_open(filename, &amp;db)</code></td><td>Open/create a database and give you a connection pointer.</td></tr>
+<tr><td><code>sqlite3_prepare_v2(db, sql, -1, &amp;stmt, NULL)</code></td><td>Prepare SQL into a statement object. Use <code>?</code> placeholders for values.</td></tr>
+<tr><td><code>sqlite3_bind_int(stmt, index, value)</code></td><td>Put an integer into a placeholder. Placeholder indexes start at 1.</td></tr>
+<tr><td><code>sqlite3_bind_text(stmt, index, text, -1, SQLITE_TRANSIENT)</code></td><td>Put text into a placeholder; <code>SQLITE_TRANSIENT</code> asks SQLite to copy it.</td></tr>
+<tr><td><code>sqlite3_step(stmt)</code></td><td>Run/advance the statement. SELECT returns <code>SQLITE_ROW</code> for a row; completion is <code>SQLITE_DONE</code>.</td></tr>
+<tr><td><code>sqlite3_column_int(stmt, col)</code></td><td>Read an integer from the current SELECT row. Column indexes start at 0.</td></tr>
+<tr><td><code>sqlite3_finalize(stmt)</code>, <code>sqlite3_close(db)</code></td><td>Release the statement and then the database connection.</td></tr></table>
+<div class="callout">A prepared statement is like a reusable, compiled SQL command. The SQL text contains <code>?</code> placeholders; you bind actual values separately. This avoids unsafe string concatenation.</div>
+<div class="exercise"><h4><code>sql_count_students(filename)</code></h4><p>Open DB → prepare <code>SELECT COUNT(*) FROM students;</code> → call <code>sqlite3_step</code> once and expect <code>SQLITE_ROW</code> → read column 0 with <code>sqlite3_column_int</code> → finalize → close → return count.</p></div>
+<div class="exercise"><h4><code>sql_add_student(filename, id, name, grade)</code></h4><p>Prepare <code>INSERT INTO students(id, name, grade) VALUES (?, ?, ?);</code>. Bind ID at index 1, name at index 2 and grade at index 3. Call <code>sqlite3_step</code> and expect <code>SQLITE_DONE</code>. Finalize and close.</p></div>
+<div class="exercise"><h4><code>sql_update_grade(filename, id, grade)</code></h4><p>Prepare <code>UPDATE students SET grade = ? WHERE id = ?;</code>. Bind new grade at 1 and ID at 2. Execute. You can use <code>sqlite3_changes(db)</code> before closing to know whether a row changed.</p></div>
+<div class="exercise"><h4><code>sql_delete_student(filename, id)</code></h4><p>Prepare <code>DELETE FROM students WHERE id = ?;</code>, bind the ID, execute to <code>SQLITE_DONE</code>, finalize and close.</p></div>
+<pre>/* The essential prepared-statement pattern */
+sqlite3 *db = NULL;
+sqlite3_stmt *stmt = NULL;
+
+if (sqlite3_open(filename, &amp;db) != SQLITE_OK)
+    return -1;
+if (sqlite3_prepare_v2(db,
+        "SELECT COUNT(*) FROM students;", -1, &amp;stmt, NULL) != SQLITE_OK) {
+    sqlite3_close(db);
+    return -1;
+}
+if (sqlite3_step(stmt) != SQLITE_ROW) {
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    return -1;
+}
+int count = sqlite3_column_int(stmt, 0);
+sqlite3_finalize(stmt);
+sqlite3_close(db);
+return count;</pre>
+</section>
+
+<section class="panel" id="libcsv">
+<h2>10. Proficiencies — CSV using libcsv</h2>
+<p><span class="pill">Folder: proficiencies/csv_library</span><span class="pill">Header: csv.h</span><span class="pill">Link: -lcsv</span></p>
+<p>This fixture includes a comma inside a quoted name and an escaped quote:</p>
+<pre>id,name,grade
+1,"Ada Lovelace",18
+2,"Bob, Jr.",14
+3,"Chihiro ""Sky""",17
+4,"Dora",9</pre>
+<p>A simple <code>strtok(line, ",")</code> splits the name <code>Bob, Jr.</code> into two pieces. The library understands quoted fields for you.</p>
+<h3>How libcsv works</h3>
+<ol><li><code>csv_init(&amp;parser, options)</code> initializes a parser state.</li><li>Read chunks from the file with <code>fread</code>.</li><li>Give each chunk to <code>csv_parse</code>.</li><li>libcsv calls your <strong>field callback</strong> when one field is complete, and your <strong>row callback</strong> when a record ends.</li><li>Call <code>csv_fini</code> after the last chunk so the final field/row is processed even if the file has no final newline.</li><li>Call <code>csv_free</code> when finished.</li></ol>
+<h3>Callback signatures</h3>
+<pre>void field_callback(void *field, size_t length, void *user_data);
+void row_callback(int terminator, void *user_data);</pre>
+<p>The callback's <code>user_data</code> is how you pass your own context structure into the callbacks. For example:</p>
+<pre>struct csv_context {
+    char fields[3][128];
+    size_t field_count;
+    int row_number;
+    int valid_records;
+    int wanted_id;
+    struct student found;
+    int found_flag;
+};</pre>
+<p>In <code>field_callback</code>, copy exactly <code>length</code> bytes into the next field slot and append <code>'\\0'</code>. Do not keep the <code>field</code> pointer after the callback returns: libcsv owns/reuses its internal buffer. In <code>row_callback</code>, the three saved fields form one row. Skip row 0 because it is the header; convert ID and grade; update your counters or matching student; then reset <code>field_count</code> to 0 for the next row.</p>
+<h3>Functions for this exercise</h3>
+<div class="exercise"><h4><code>csv_library_count(filename)</code></h4><p>Run the parser and increment a record count in the row callback, excluding the header. Return -1 if opening or parsing fails.</p></div>
+<div class="exercise"><h4><code>csv_library_find(filename, id, out)</code></h4><p>Store the requested ID in the callback context. For each data row, convert field 0 to an integer; if it matches, fill <code>out-&gt;id</code>, copy field 1 into <code>out-&gt;name</code> and convert field 2 into <code>out-&gt;grade</code>. Do not return a pointer into the parser buffer.</p></div>
+<div class="exercise"><h4><code>csv_library_average(filename)</code></h4><p>For each valid data row, add the grade to <code>sum</code> and increment <code>count</code>. At the end, return <code>(double)sum / count</code>. Handle the case <code>count == 0</code> before dividing.</p></div>
+<div class="exercise"><h4><code>csv_library_filter(input, output, minimum)</code></h4><p>For each row with <code>grade &gt;= minimum</code>, write a record to the output CSV. Use <code>csv_fwrite</code> for text fields that may need escaping. It writes one quoted CSV field; you must write commas between fields and the record newline yourself. Open CSV files in binary mode when using libcsv's file APIs.</p></div>
+<h3>Important libcsv functions</h3>
+<table><tr><th>Function</th><th>Meaning</th></tr>
+<tr><td><code>csv_init</code></td><td>Initialize parser.</td></tr><tr><td><code>csv_parse</code></td><td>Parse a chunk and invoke callbacks.</td></tr><tr><td><code>csv_fini</code></td><td>Flush the final field/record.</td></tr><tr><td><code>csv_free</code></td><td>Release parser buffers.</td></tr><tr><td><code>csv_error</code>, <code>csv_strerror</code></td><td>Get parser error code/message.</td></tr><tr><td><code>csv_fwrite</code></td><td>Write one escaped field to a file.</td></tr></table>
+<pre>/* The core parsing loop */
+struct csv_parser parser;
+char buffer[1024];
+size_t n;
+
+if (csv_init(&amp;parser, CSV_STRICT) != 0)
+    return -1;
+while ((n = fread(buffer, 1, sizeof(buffer), fp)) &gt; 0) {
+    if (csv_parse(&amp;parser, buffer, n,
+                  field_callback, row_callback, &amp;context) != n) {
+        /* csv_error(&amp;parser), csv_strerror(...) */
+        csv_free(&amp;parser);
+        return -1;
+    }
+}
+csv_fini(&amp;parser, field_callback, row_callback, &amp;context);
+csv_free(&amp;parser);</pre>
+</section>
+
+<section class="panel" id="cjson">
+<h2>11. Proficiencies — JSON using cJSON</h2>
+<p><span class="pill">Folder: proficiencies/json_library</span><span class="pill">Header: cJSON.h</span><span class="pill">Link: -lcjson</span></p>
+<p>Fixture structure:</p>
+<pre>{
+  "courses": [
+    {
+      "id": 10,
+      "title": "C Programming",
+      "room": "A101",
+      "students": [
+        {"name": "Ada", "grade": 18},
+        {"name": "Bob", "grade": 12}
+      ]
+    },
+    {
+      "id": 20,
+      "title": "Structured Data",
+      "room": "B204",
+      "students": [
+        {"name": "Chihiro", "grade": 17},
+        {"name": "Dora", "grade": 9}
+      ]
+    }
+  ]
+}</pre>
+<h3>The basic cJSON workflow</h3>
+<ol><li>Read the whole file into a string (for example with <code>fopen</code>, <code>fseek</code>, <code>ftell</code>, <code>malloc</code> and <code>fread</code>).</li><li>Parse it: <code>cJSON *root = cJSON_Parse(text);</code>.</li><li>Find a property with <code>cJSON_GetObjectItemCaseSensitive(object, "key")</code>.</li><li>Check its type using <code>cJSON_IsObject</code>, <code>cJSON_IsArray</code>, <code>cJSON_IsString</code> or <code>cJSON_IsNumber</code>.</li><li>For arrays use <code>cJSON_GetArraySize</code>/<code>cJSON_GetArrayItem</code> or <code>cJSON_ArrayForEach</code>.</li><li>Modify/create nodes if needed.</li><li>Serialize with <code>cJSON_Print</code> or <code>cJSON_PrintUnformatted</code>.</li><li>Write the returned string to a file, then <code>free</code> it and <code>cJSON_Delete(root)</code>.</li></ol>
+<h3>Most useful cJSON functions</h3>
+<table><tr><th>Function</th><th>Use</th></tr>
+<tr><td><code>cJSON_Parse(text)</code></td><td>Convert JSON text into a cJSON tree. Returns NULL on parse failure.</td></tr>
+<tr><td><code>cJSON_Delete(root)</code></td><td>Delete the parsed tree and its owned children.</td></tr>
+<tr><td><code>cJSON_GetObjectItemCaseSensitive(obj, key)</code></td><td>Get one object property by exact key spelling.</td></tr>
+<tr><td><code>cJSON_IsObject/IsArray/IsString/IsNumber</code></td><td>Check node type before reading it.</td></tr>
+<tr><td><code>cJSON_GetArraySize(arr)</code></td><td>Get number of array elements.</td></tr>
+<tr><td><code>cJSON_GetArrayItem(arr, i)</code></td><td>Get an array element by index.</td></tr>
+<tr><td><code>cJSON_ArrayForEach(item, arr)</code></td><td>Loop over array/object children.</td></tr>
+<tr><td><code>cJSON_GetStringValue(item)</code></td><td>Get string content after confirming it is a string.</td></tr>
+<tr><td><code>cJSON_GetNumberValue(item)</code></td><td>Read a number as double after confirming numeric type.</td></tr>
+<tr><td><code>cJSON_SetValuestring(item, text)</code></td><td>Change an existing string node.</td></tr>
+<tr><td><code>cJSON_SetNumberValue(item, number)</code></td><td>Change an existing number node.</td></tr>
+<tr><td><code>cJSON_CreateArray/Object/String/Number</code></td><td>Create a JSON array, object, string or number node.</td></tr>
+<tr><td><code>cJSON_AddItemToArray</code>, <code>cJSON_AddItemToObject</code></td><td>Attach a new child to an array or object.</td></tr>
+<tr><td><code>cJSON_AddStringToObject</code>, <code>cJSON_AddNumberToObject</code></td><td>Conveniently create a property in an object.</td></tr>
+<tr><td><code>cJSON_Print(root)</code></td><td>Serialize the tree to an allocated JSON string.</td></tr></table>
+<div class="callout warn"><strong>Memory rule:</strong> the result of <code>cJSON_Parse</code> must be deleted with <code>cJSON_Delete</code>. The string returned by <code>cJSON_Print</code> is separately allocated and must be freed with <code>free</code> (for the default allocator). Once you add a child node to an object/array, that parent owns it; do not delete the child separately.</div>
+<div class="exercise"><h4><code>json_library_count_courses(filename)</code></h4><ol><li>Parse the file.</li><li>Get <code>courses</code> from the root object.</li><li>Check <code>cJSON_IsArray(courses)</code>.</li><li>Count it with <code>cJSON_GetArraySize(courses)</code>.</li><li>Delete root and return the count.</li></ol></div>
+<div class="exercise"><h4><code>json_library_total_students(filename)</code></h4><ol><li>Get and validate the <code>courses</code> array.</li><li>For each course object, get its <code>students</code> property.</li><li>Check that students is an array.</li><li>Add its array size to a total.</li><li>Delete root and return the total.</li></ol><p>For the supplied fixture the expected total is 4.</p></div>
+<div class="exercise"><h4><code>json_library_update_room(filename, course_id, room)</code></h4><ol><li>Parse root and get the courses array.</li><li>Loop over each course object. Read its <code>id</code> property and check that it is a number.</li><li>When the ID matches, get <code>room</code> and check that it is a string.</li><li>Call <code>cJSON_SetValuestring(room_node, room)</code>.</li><li>Serialize the entire root with <code>cJSON_Print</code> and write it back to the file (prefer a temporary file).</li><li>Free the printed text and delete root.</li></ol></div>
+<div class="exercise"><h4><code>json_library_export_top(input, output, minimum)</code></h4><ol><li>Parse input; navigate root → courses array → each course → students array.</li><li>For each student object, read <code>name</code> and <code>grade</code>; check string/number types.</li><li>If grade is at least <code>minimum</code>, create a JSON object containing the student's name and grade.</li><li>Add that object to a new array with <code>cJSON_AddItemToArray</code>.</li><li>Print the new array using <code>cJSON_Print</code>, write it to output, free the printed string, and delete both JSON trees.</li></ol></div>
+</section>
+
+<section class="panel" id="json-struct">
+<h2>12. Very important — JSON → C <code>struct</code> (extract a whole block)</h2>
+<div class="callout good"><strong>This is likely the part you are asking about.</strong> You can extract a complete JSON array/object block into your own C structures, but cJSON does not automatically fill a C struct for you. You first get a pointer to the JSON block, then walk through its fields and copy each value into your struct.</div>
+<h3>12.1 Understand the two representations</h3>
+<p>JSON has named properties and arrays:</p>
+<pre>{
+  "courses": [
+    { "id": 10, "title": "C Programming", "room": "A101" }
+  ]
+}</pre>
+<p>In C, you might represent the same information with:</p>
+<pre>typedef struct {
+    int id;
+    char title[64];
+    char room[32];
+} Course;
+
+typedef struct {
+    Course courses[10];
+    size_t course_count;
+} CourseBlock;</pre>
+<p>The JSON property <code>courses</code> is an array. The C field <code>courses</code> is an array of <code>Course</code>. Each JSON object inside the array becomes one C <code>Course</code>.</p>
+<h3>12.2 Navigate to the block first</h3>
+<pre>cJSON *root = cJSON_Parse(json_text);
+if (root == NULL)
+    return -1;
+
+/* Get the whole "courses" array node */
+cJSON *courses_json = cJSON_GetObjectItemCaseSensitive(root, "courses");
+if (!cJSON_IsArray(courses_json)) {
+    cJSON_Delete(root);
+    return -1;
+}
+
+/* Get the first object inside the array */
+cJSON *first_course = cJSON_GetArrayItem(courses_json, 0);
+if (!cJSON_IsObject(first_course)) {
+    cJSON_Delete(root);
+    return -1;
+}</pre>
+<p><code>courses_json</code> points to the entire JSON array block. <code>first_course</code> points to one object in that block. These are pointers into the parsed tree; do not call <code>free</code> on them or delete them separately.</p>
+<h3>12.3 Extract one object into one struct</h3>
+<pre>Course course;
+cJSON *id_node = cJSON_GetObjectItemCaseSensitive(first_course, "id");
+cJSON *title_node = cJSON_GetObjectItemCaseSensitive(first_course, "title");
+cJSON *room_node = cJSON_GetObjectItemCaseSensitive(first_course, "room");
+
+if (!cJSON_IsNumber(id_node) ||
+    !cJSON_IsString(title_node) ||
+    !cJSON_IsString(room_node)) {
+    cJSON_Delete(root);
+    return -1;
+}
+
+course.id = (int)cJSON_GetNumberValue(id_node);
+snprintf(course.title, sizeof(course.title), "%s",
+         cJSON_GetStringValue(title_node));
+snprintf(course.room, sizeof(course.room), "%s",
+         cJSON_GetStringValue(room_node));</pre>
+<p>Now <code>course</code> is an ordinary C structure. You can pass it to another function, store it in an array or print its fields.</p>
+<h3>12.4 Extract the whole courses array into a C array (complete example)</h3>
+<p>This is a full example for the simpler fields <code>id</code>, <code>title</code> and <code>room</code>. It accepts a maximum capacity, so it cannot write past the provided array.</p>
+<pre>#include &lt;stdio.h&gt;
+#include &lt;stddef.h&gt;
+#include &lt;string.h&gt;
+#include &lt;cjson/cJSON.h&gt;
+
+typedef struct {
+    int id;
+    char title[64];
+    char room[32];
+} Course;
+
+int extract_courses(cJSON *root, Course *out,
+                    size_t capacity, size_t *count)
+{
+    cJSON *array;
+    cJSON *item;
+    size_t used = 0;
+
+    if (root == NULL || out == NULL || count == NULL)
+        return -1;
+
+    array = cJSON_GetObjectItemCaseSensitive(root, "courses");
+    if (!cJSON_IsArray(array))
+        return -1;
+
+    cJSON_ArrayForEach(item, array) {
+        cJSON *id_node;
+        cJSON *title_node;
+        cJSON *room_node;
+        const char *title;
+        const char *room;
+
+        if (used == capacity)
+            return -1;
+        if (!cJSON_IsObject(item))
+            return -1;
+
+        id_node = cJSON_GetObjectItemCaseSensitive(item, "id");
+        title_node = cJSON_GetObjectItemCaseSensitive(item, "title");
+        room_node = cJSON_GetObjectItemCaseSensitive(item, "room");
+
+        if (!cJSON_IsNumber(id_node) ||
+            !cJSON_IsString(title_node) ||
+            !cJSON_IsString(room_node))
+            return -1;
+
+        title = cJSON_GetStringValue(title_node);
+        room = cJSON_GetStringValue(room_node);
+        if (title == NULL || room == NULL)
+            return -1;
+
+        out[used].id = (int)cJSON_GetNumberValue(id_node);
+        snprintf(out[used].title, sizeof(out[used].title), "%s", title);
+        snprintf(out[used].room, sizeof(out[used].room), "%s", room);
+        used++;
+    }
+
+    *count = used;
+    return 0;
+}</pre>
+<p>Usage:</p>
+<pre>Course courses[10];
+size_t course_count = 0;
+
+/* root is the result of cJSON_Parse(...) */
+if (extract_courses(root, courses, 10, &amp;course_count) == 0) {
+    for (size_t i = 0; i &lt; course_count; i++)
+        printf("%d %s %s\\n", courses[i].id,
+               courses[i].title, courses[i].room);
+}
+
+cJSON_Delete(root);</pre>
+<h3>12.5 Nested JSON blocks: struct inside struct</h3>
+<p>The supplied JSON has <code>students</code> inside each course. Model that nesting in C:</p>
+<pre>typedef struct {
+    char name[64];
+    int grade;
+} Student;
+
+typedef struct {
+    int id;
+    char title[64];
+    char room[32];
+    Student students[20];
+    size_t student_count;
+} Course;</pre>
+<p>Then inside the loop for one course, after reading ID/title/room:</p>
+<pre>cJSON *students_json = cJSON_GetObjectItemCaseSensitive(item, "students");
+if (!cJSON_IsArray(students_json))
+    return -1;
+
+out[used].student_count = 0;
+cJSON *student_json;
+cJSON_ArrayForEach(student_json, students_json) {
+    cJSON *name_node;
+    cJSON *grade_node;
+    size_t s = out[used].student_count;
+
+    if (!cJSON_IsObject(student_json) || s == 20)
+        return -1;
+    name_node = cJSON_GetObjectItemCaseSensitive(student_json, "name");
+    grade_node = cJSON_GetObjectItemCaseSensitive(student_json, "grade");
+    if (!cJSON_IsString(name_node) || !cJSON_IsNumber(grade_node))
+        return -1;
+
+    snprintf(out[used].students[s].name,
+             sizeof(out[used].students[s].name), "%s",
+             cJSON_GetStringValue(name_node));
+    out[used].students[s].grade =
+        (int)cJSON_GetNumberValue(grade_node);
+    out[used].student_count++;
+}</pre>
+<h3>12.6 The pattern to remember</h3>
+<table><tr><th>JSON shape</th><th>cJSON navigation</th><th>C representation</th></tr>
+<tr><td><code>{ ... }</code> object</td><td><code>cJSON_GetObjectItemCaseSensitive</code></td><td><code>struct</code></td></tr>
+<tr><td><code>[ ... ]</code> array</td><td><code>cJSON_IsArray</code>, <code>cJSON_ArrayForEach</code></td><td>C array + count</td></tr>
+<tr><td>String</td><td><code>cJSON_IsString</code>, <code>cJSON_GetStringValue</code></td><td><code>char field[N]</code></td></tr>
+<tr><td>Number</td><td><code>cJSON_IsNumber</code>, <code>cJSON_GetNumberValue</code></td><td><code>int</code> or <code>double</code></td></tr></table>
+<div class="callout warn"><strong>Do not do this:</strong> <code>memcpy(&amp;my_struct, json_node, sizeof(my_struct))</code>. A cJSON node is not laid out like your struct. You must map every property explicitly. Also, do not keep <code>valuestring</code> pointers after deleting <code>root</code>; copy the text into your struct first.</div>
+</section>
+
+<section class="panel" id="libyaml">
+<h2>13. Proficiencies — YAML using libyaml</h2>
+<p><span class="pill">Folder: proficiencies/yaml_library</span><span class="pill">Header: yaml.h</span><span class="pill">Link: -lyaml</span></p>
+<p>Fixture:</p>
+<pre>project: Cat Bureau
+tasks:
+  - id: 1
+    title: Parse CSV
+    status: done
+  - id: 2
+    title: Parse JSON
+    status: todo
+  - id: 3
+    title: Parse YAML
+    status: done</pre>
+<p>libyaml does not give you the same simple key lookup API as cJSON. It parses YAML into a <strong>document tree</strong>. In this exercise, the important node types are:</p>
+<table><tr><th>Node type</th><th>Meaning</th><th>Fixture example</th></tr>
+<tr><td><code>YAML_MAPPING_NODE</code></td><td>Key/value mapping.</td><td><code>project: Cat Bureau</code>, each task mapping.</td></tr>
+<tr><td><code>YAML_SEQUENCE_NODE</code></td><td>Ordered list.</td><td>The <code>tasks</code> list.</td></tr>
+<tr><td><code>YAML_SCALAR_NODE</code></td><td>One text/scalar value.</td><td><code>project</code>, <code>done</code>, <code>Parse CSV</code>.</td></tr></table>
+<h3>Parsing and getting the document</h3>
+<pre>FILE *fp = fopen(filename, "rb");
+yaml_parser_t parser;
+yaml_document_t document;
+
+if (fp == NULL)
+    return -1;
+if (!yaml_parser_initialize(&amp;parser)) {
+    fclose(fp);
+    return -1;
+}
+yaml_parser_set_input_file(&amp;parser, fp);
+if (!yaml_parser_load(&amp;parser, &amp;document)) {
+    yaml_parser_delete(&amp;parser);
+    fclose(fp);
+    return -1;
+}
+
+yaml_node_t *root = yaml_document_get_root_node(&amp;document);
+/* Inspect root and child nodes here. */
+
+yaml_document_delete(&amp;document);
+yaml_parser_delete(&amp;parser);
+fclose(fp);</pre>
+<h3>How to navigate the tree</h3>
+<ol><li>The root for this fixture should be a mapping.</li><li>Loop through <code>root-&gt;data.mapping.pairs</code>.</li><li>For each pair, get the key node and value node using <code>yaml_document_get_node(&amp;document, pair-&gt;key)</code> and <code>...pair-&gt;value</code>.</li><li>Check if the key is the scalar text <code>tasks</code>.</li><li>Its value should be a sequence. Loop through <code>sequence.items</code>. Each item is a node ID; get the task node with <code>yaml_document_get_node</code>.</li><li>Each task should be a mapping. Loop over its pairs to find <code>id</code> or <code>status</code>.</li></ol>
+<pre>/* Conceptual mapping/sequence traversal */
+if (root != NULL &amp;&amp; root-&gt;type == YAML_MAPPING_NODE) {
+    yaml_node_pair_t *pair;
+    for (pair = root-&gt;data.mapping.pairs.start;
+         pair != root-&gt;data.mapping.pairs.top; pair++) {
+        yaml_node_t *key_node = yaml_document_get_node(&amp;document, pair-&gt;key);
+        yaml_node_t *value_node = yaml_document_get_node(&amp;document, pair-&gt;value);
+        /* Compare key_node's scalar value with "tasks". */
+        /* If it is "tasks", require value_node-&gt;type == YAML_SEQUENCE_NODE. */
+    }
+}</pre>
+<h3>Functions for the exercise</h3>
+<div class="exercise"><h4><code>yaml_library_count_tasks(filename)</code></h4><p>Parse the YAML document → find top-level <code>tasks</code> mapping value → check sequence type → the number of sequence items is the task count. Return -1 on parse/type failure.</p></div>
+<div class="exercise"><h4><code>yaml_library_count_status(filename, status)</code></h4><p>Find the tasks sequence. For each task mapping, search its pairs for the <code>status</code> scalar. Compare its scalar bytes and length with the requested status. Increment the count when equal. Remember: compare using the scalar's recorded length; YAML scalar values are not guaranteed to be null-terminated for every API use.</p></div>
+<div class="exercise"><h4><code>yaml_library_update_status(filename, id, status)</code></h4><p>Find the task mapping whose <code>id</code> scalar parses to the requested integer. Rebuild the output document with the same top-level key/value pairs and tasks, replacing the chosen status scalar. libyaml's document-building functions include <code>yaml_document_initialize</code>, <code>yaml_document_add_mapping</code>, <code>yaml_document_add_sequence</code>, <code>yaml_document_add_scalar</code>, <code>yaml_document_append_mapping_pair</code> and <code>yaml_document_append_sequence_item</code>. Emit it using <code>yaml_emitter_initialize</code>, <code>yaml_emitter_set_output_file</code> and <code>yaml_emitter_dump</code>.</p></div>
+<h3>Emitter / output functions</h3>
+<table><tr><th>Function</th><th>Purpose</th></tr>
+<tr><td><code>yaml_emitter_initialize</code></td><td>Initialize the emitter.</td></tr><tr><td><code>yaml_emitter_set_output_file</code></td><td>Choose the output FILE.</td></tr><tr><td><code>yaml_emitter_dump</code></td><td>Write one complete document. The emitter takes ownership of the document and destroys it, even if emitting fails.</td></tr><tr><td><code>yaml_emitter_close</code></td><td>Finish the YAML stream.</td></tr><tr><td><code>yaml_emitter_delete</code></td><td>Release emitter resources.</td></tr></table>
+<div class="callout warn">libyaml's API is lower-level than cJSON. The most important thing is to identify mapping, sequence and scalar node types, then follow node IDs to navigate. Do not assume YAML is only indentation and colon characters.</div>
+</section>
+
+<section class="panel" id="cheatsheet">
+<h2>14. Library function cheat sheet</h2>
+<table><tr><th>Library</th><th>Include</th><th>Compile/link</th><th>First functions to remember</th></tr>
+<tr><td>libcsv</td><td><code>#include &lt;csv.h&gt;</code></td><td><code>-lcsv</code></td><td><code>csv_init</code>, <code>csv_parse</code>, callbacks, <code>csv_fini</code>, <code>csv_free</code>, <code>csv_fwrite</code></td></tr>
+<tr><td>cJSON</td><td><code>#include &lt;cjson/cJSON.h&gt;</code> (some systems use <code>&lt;cJSON.h&gt;</code>)</td><td><code>-lcjson</code></td><td><code>cJSON_Parse</code>, <code>GetObjectItemCaseSensitive</code>, <code>IsArray</code>/<code>IsString</code>/<code>IsNumber</code>, <code>ArrayForEach</code>, <code>Print</code>, <code>Delete</code></td></tr>
+<tr><td>libyaml</td><td><code>#include &lt;yaml.h&gt;</code></td><td><code>-lyaml</code></td><td><code>yaml_parser_initialize</code>, <code>yaml_parser_set_input_file</code>, <code>yaml_parser_load</code>, <code>yaml_document_get_root_node</code>, emitter functions</td></tr>
+<tr><td>SQLite</td><td><code>#include &lt;sqlite3.h&gt;</code></td><td><code>-lsqlite3</code></td><td><code>sqlite3_open</code>, <code>sqlite3_prepare_v2</code>, <code>sqlite3_bind_*</code>, <code>sqlite3_step</code>, <code>sqlite3_column_*</code>, <code>sqlite3_finalize</code>, <code>sqlite3_close</code></td></tr></table>
+<h3>Build commands (Debian / Ubuntu / Kali)</h3>
+<pre>sudo apt update
+sudo apt install build-essential make sqlite3 libsqlite3-dev libcsv-dev libcjson-dev libyaml-dev</pre>
+<p>Then compile each folder using the supplied Makefile:</p>
+<pre>cd proficiencies/csv_library
+make
+./exo
+make clean</pre>
+<p>Do not assume these packages are present on the actual exam machine. The course/subject should tell you which libraries are available and how the examiner expects you to link them.</p>
+</section>
+
+<section class="panel" id="mistakes">
+<h2>15. Common mistakes and final checklist</h2>
+<h3>Common mistakes</h3>
+<ul>
+<li><strong>Using a library without including its header:</strong> include the header shown in the subject, e.g. <code>cJSON.h</code>, <code>csv.h</code> or <code>yaml.h</code>.</li>
+<li><strong>Forgetting the linker flag:</strong> <code>#include</code> only makes declarations visible; <code>-lcjson</code>/<code>-lcsv</code>/<code>-lyaml</code> links the library implementation.</li>
+<li><strong>Not checking a parser result:</strong> <code>cJSON_Parse</code> can return NULL; libyaml parser calls can fail; <code>fopen</code> can fail.</li>
+<li><strong>Reading a value before checking its type:</strong> check number/string/array/object first.</li>
+<li><strong>Using a pointer after freeing its owner:</strong> cJSON string pointers belong to the tree. Copy them before <code>cJSON_Delete</code>.</li>
+<li><strong>Forgetting finalization:</strong> call <code>csv_fini</code> after all chunks; finalize SQLite statements; close all files.</li>
+<li><strong>Counting the header row:</strong> CSV fixtures have a first header record.</li>
+<li><strong>Using <code>strtok</code> on quoted CSV:</strong> a comma can be inside a quoted name.</li>
+<li><strong>Overwriting the input before output is ready:</strong> serialize/write to a temporary file first for update/delete operations.</li>
+<li><strong>Assuming a struct is the same thing as a JSON object:</strong> map the fields explicitly, do not memcpy a cJSON node.</li>
+</ul>
+<h3>Before submitting</h3>
+<ul>
+<li>Does the code compile with <code>-std=c99 -Wall -Wextra -Werror -pedantic</code>?</li>
+<li>Did you respect the exact function prototype in <code>exercise.h</code>?</li>
+<li>Did you check file-open and parse failures?</li>
+<li>Did you verify that every requested JSON/YAML node has the expected type?</li>
+<li>Did you handle “not found” without returning uninitialized data?</li>
+<li>Did you close files and release parser/library memory?</li>
+<li>Did you test a missing ID, wrong type, empty array and parse error when appropriate?</li>
+</ul>
+</section>
+
+<section class="panel" id="references">
+<h2>16. Official API references</h2>
+<p>These are the reference pages for the library functions summarized above. They are useful when the exercise statement gives you an API list or asks you to consult the documentation.</p>
+<ul>
+<li><a href="https://github.com/DaveGamble/cJSON/blob/master/README.md">cJSON README — parsing, navigation, arrays, objects, printing and memory ownership</a></li>
+<li><a href="https://raw.githubusercontent.com/rgamble/libcsv/master/csv.pdf">libcsv manual — callbacks, csv_parse, csv_fini and csv_fwrite</a></li>
+<li><a href="https://github.com/yaml/libyaml/blob/master/include/yaml.h">libyaml header — parser, document nodes, node types and emitter declarations</a></li>
+<li><a href="https://www.sqlite.org/cintro.html">SQLite C interface introduction — prepared statements and the core C API</a></li>
+<li><a href="https://www.sqlite.org/capi3ref.html">SQLite C API reference</a></li>
+</ul>
+<div class="callout"><strong>Scope note:</strong> this guide explains the exact prototypes and sample files in this practice TP. If your teacher supplies a different library or a different header/API sheet during the real TP, follow that sheet first. The overall workflow remains the same: parse → navigate → type-check → process → serialize/write → clean up.</div>
+</section>
+<p class="footer">Structured Data — C programming practice TP · Study guide generated for the accompanying exercise scaffold.</p>
+<p class="top"><a href="#top">↑ Back to top</a></p>
+</main></body></html>

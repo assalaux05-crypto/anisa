@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<course>
+  <title>Structured Data</title>
+  <student><name>Ada</name></student>
+  <student><name>Bob</name></student>
+</course>

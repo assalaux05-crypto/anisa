@@ -1,0 +1,6 @@
+course: Structured Data
+room: B204
+modules:
+  - CSV
+  - JSON
+  - YAML

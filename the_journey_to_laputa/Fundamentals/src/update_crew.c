@@ -26,6 +26,7 @@ int main(void)
 
 
     printf("%zu\n", crew_strlen("Pazu")); // 4
+
 printf("%zu\n", crew_strlen(""));     // 0
 return 0;
 }
@@ -190,29 +191,29 @@ void *remove_pirate(void *arg) {
 void *find_pirate_worker(void *arg) { 
 
 
-struct crew_search_args* grp=(struct crew_search_args*)arg;
+    struct crew_search_args* grp=(struct crew_search_args*)arg;
 
 
-if(!grp || !grp->crew || !grp->name)
-{
-
-    if(grp)
+    if(!grp || !grp->crew || !grp->name)
     {
-        grp->found=0;
-    }
-    return NULL;
 
-}
-    for (size_t i=0;i<grp->crew->crew_count;i++)
-    {
-        if(crew_strcmp(grp->name,grp->crew->members[i])==0)
+        if(grp)
         {
-            grp->found=1;
-            return NULL;
+            grp->found=0;
         }
+        return NULL;
+
     }
-    grp->found=0;
-    return NULL;
+        for (size_t i=0;i<grp->crew->crew_count;i++)
+        {
+            if(crew_strcmp(grp->name,grp->crew->members[i])==0)
+            {
+                grp->found=1;
+                return NULL;
+            }
+        }
+        grp->found=0;
+        return NULL;
 
 
 
@@ -248,6 +249,7 @@ int update_crew(struct airship *ship, const char **names, size_t n) {
     
     pthread_t *t=malloc(n*sizeof( pthread_t));
     if(!t)return 42;
+
     struct crew_search_args* grp=malloc(n*sizeof(struct crew_search_args));
     if(!grp)
     {
@@ -265,7 +267,12 @@ int update_crew(struct airship *ship, const char **names, size_t n) {
        {
         for(size_t j=0;j<i;j++)
         {
-            pthread_join(t[j],NULL);
+             if(pthread_join(t[j],NULL)!=0)
+            {
+                free(t);
+                free(grp);
+                return 42;
+            }
         }
        
         free(grp);
@@ -275,7 +282,12 @@ int update_crew(struct airship *ship, const char **names, size_t n) {
     }
     for(size_t i=0;i<n;i++)
     {
-         pthread_join(t[i],NULL);
+         if(pthread_join(t[i],NULL)!=0)
+         {
+            free(t);
+            free(grp);
+            return 42;
+         }
     }
     
     /*
@@ -286,42 +298,128 @@ struct crew_args
     int error;
 };
 */
-    
-    
-    struct crew_args m;
-    m.ship=ship;
-    for(size_t i=0;i<n;i++)
-    {
-        m.name=names[i];
-        m.error=0;
-        if(grp[i].found==1)
-    {
-        remove_pirate(&m);
-        
-    }
-    else 
-    {
-            add_pirate(&m);
 
-    }
-    if(m.error!=0)
+    struct crew_args *m=malloc(sizeof(struct crew_args)*n);
+    if(!m)
     {
-        free(grp);
         free(t);
+        free(grp);
         return 42;
     }
-    
-   
+     // oblige psq la grand struct c pour tt le monde 
+
+    pthread_mutex_lock(&ship->mutex);
+
+    for(size_t i=0;i<n;i++)
+        {
+            m[i].ship=ship;
+            m[i].name=names[i];
+            m[i].error=0;
+            if(grp[i].found==1)
+            {
+            
+                if( pthread_create(&t[i],0,remove_pirate,&m[i])!=0)
+                {
+                    for(size_t j=0;j<i;j++)
+                    {
+                        pthread_join(t[j],NULL);
+                       
+                    }
+       
+                free(grp);
+                free(t);
+                free(m);
+                return 42;
+                }
+            }
+            else 
+            {
+                
+                if( pthread_create(&t[i],0,add_pirate,&m[i])!=0)
+                {
+                    pthread_mutex_unlock(&ship->mutex);
+
+                    for(size_t j=0;j<i;j++)
+                    {
+                        pthread_join(t[j],NULL);
+                      
+                    }
+       
+                    free(grp);
+                    free(t);
+                    free(m);
+                    return 42;
+                }
+                
+                
+                
+
+            }
+            /*
+        if(m[i].error!=0)
+        {
+            free(grp);
+            free(t);
+            free(m);
+            return 42;
+        }
+        */
+        pthread_mutex_unlock(&ship->mutex);
 
 
+
+        }
+    int res=0;
+    for(size_t i=0;i<n;i++)
+    {
+
+         if(pthread_join(t[i],NULL)!=0)
+         {
+           
+            res=42;
+         }
     }
     
 
-     free(grp);
+    free(grp);
     free(t);
-    return 0;
+    free(m);
+    return res;
 
 
     
 
 }
+
+/*
+int main(void)
+{
+    struct airship *ship = init_airship(5, 0, 0, 100, 4);
+    if (ship == NULL)
+        return 42;
+
+    const char *initial_names[] = { "Pazu", "Louis", "Charles" };
+
+    if (update_crew(ship, initial_names, 3) != 0)
+    {
+        destroy_airship(ship);
+        return 42;
+    }
+
+    const char *changed_names[] = { "Louis", "Henri", "Dora", "Pazu" };
+
+    if (update_crew(ship, changed_names, 4) != 0)
+    {
+        destroy_airship(ship);
+        return 42;
+    }
+
+    printf("Crew count: %zu\n", ship->crew->crew_count);
+
+    for (size_t i = 0; i < ship->crew->crew_count; i++)
+        printf("%s\n", ship->crew->members[i]);
+
+    destroy_airship(ship);
+    return 0;
+}
+    */

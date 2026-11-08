@@ -64,9 +64,9 @@ static void* fct_t(void*arg)
     pthread_mutex_unlock(&box->ship->mutex);// t1 unlock est va dormir 
 
     sleep(1);
-    box->engine->started=1;
+    
     pthread_mutex_lock(&box->ship->mutex);//t1 loc ps box->working var partage donc il faut qui lock
-
+    box->engine->started=1;
     (*box->working)--;
     pthread_cond_signal(&box->ship->engine_cond);
     pthread_mutex_unlock(&box->ship->mutex);//unlock a la fin pou que le t2 peux travaille
@@ -79,18 +79,24 @@ int start_engines(struct airship *ship) {
 
 
     if(ship==NULL || ship->engines==NULL || ship->nb_engine==0)return 42;
+    
     int s=0;
+    pthread_mutex_lock(&ship->mutex);
+
     for(size_t i=0;i<ship->nb_engine;i++)
     {
         s+=ship->engines[i].required_fuel;
     }
+
     if(ship->fuel<s)return 42;
+    pthread_mutex_unlock(&ship->mutex);
 
 
     for(size_t i=0;i<ship->nb_engine;i++)
     {
         if(ship->engines[i].started!=0)return 42;
     }
+
     pthread_t *t=malloc(sizeof(pthread_t)*ship->nb_engine);
     if(!t)return 42;
     struct engine_args*boxes=malloc(sizeof(struct engine_args)*ship->nb_engine);
@@ -120,9 +126,13 @@ int start_engines(struct airship *ship) {
         
     }
     // attendre t
+    int res=0;
     for(size_t j=0;j<ship->nb_engine;j++)
         {
-            pthread_join(t[j],NULL);
+           if( pthread_join(t[j],NULL)!=0)
+           {
+            res=42;
+           }
 
         }
 
@@ -133,7 +143,7 @@ int start_engines(struct airship *ship) {
 
    free(t);
    free(boxes);
-   return 0;
+   return res;
 
 
 

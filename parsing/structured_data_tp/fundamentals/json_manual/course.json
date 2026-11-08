@@ -1,0 +1,10 @@
+{
+  "course": "Structured Data",
+  "year": 2026,
+  "semester": 1,
+  "students": [
+    {"id": 1, "name": "Ada"},
+    {"id": 2, "name": "Bob"},
+    {"id": 3, "name": "Chihiro"}
+  ]
+}

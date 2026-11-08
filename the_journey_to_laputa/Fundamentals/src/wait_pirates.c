@@ -81,13 +81,17 @@ int wait_for_pirates(int n) {
         
 
     }
+    int res=0;
     for(int i=0;i<n;i++)
     {
-        pthread_join(t[i],NULL);
+       if(pthread_join(t[i],NULL)!=0)
+       {
+        res=42;
+       }
     }
     printf("All pirates have been checked!\n");
     free(t);
-    return 0;
+    return res;
 
 
 
