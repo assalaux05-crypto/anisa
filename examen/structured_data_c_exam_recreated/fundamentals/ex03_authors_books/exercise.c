@@ -59,7 +59,7 @@ struct author *parse_author_row(char *row)
     }
     int len=strlen(name);
     box->name=malloc(len+1);
-    if(!box->name)return NULL;
+    if(!box->name)return NULL;// free box
     strcpy(box->name,name);
     long val=strtol(idd,NULL,10);
     box->id=(int)val;

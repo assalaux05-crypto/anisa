@@ -12,11 +12,16 @@ char *parse_field(char **input)
    if(v!=NULL)
    {
     *v='\0';
-    *input=*input+1;
+    *input=v+1;
    }
    else 
    {
     *input=NULL;
+   }
+   int len=strlen(res);
+   if(len > 0 && res[len-1]=='\n')
+   {
+    res[len-1]='\0';
    }
     return res ;
 
