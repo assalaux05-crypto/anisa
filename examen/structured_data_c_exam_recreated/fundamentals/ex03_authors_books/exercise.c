@@ -88,6 +88,7 @@ void print_all_books_written_by(char *author_lastname)
     size_t size=0;
     char* linee=NULL;
     size_t sizee=0;
+    char* id;
     if(getline(&line,&size,f)==-1)
     {
         free(line);
@@ -99,7 +100,7 @@ void print_all_books_written_by(char *author_lastname)
     {
 
         if(line[0]=='\n')continue;
-        char* id=strtok(line,",");
+        id=strtok(line,",");
         if(!id)continue;
         char*name=strtok(NULL,",");
         if(!name)continue;
@@ -113,11 +114,18 @@ void print_all_books_written_by(char *author_lastname)
             
             
            
-            if(getline(&linee,&sizee,g)==-1)
+            break;
+
+
+            }
+           
+        }
+        fclose(f);
+        if(getline(&linee,&sizee,g)==-1)
             {
                 free(line);
                 free(linee);
-                fclose(f);
+                
                 fclose(g);
                 return;
                 
@@ -147,11 +155,6 @@ void print_all_books_written_by(char *author_lastname)
 
 
 
-            }
-            break;// il faut 
-        }
-
-
 
 
 
@@ -166,7 +169,6 @@ void print_all_books_written_by(char *author_lastname)
 
         free(line);
         free(linee);
-        fclose(f);
         fclose(g);
         return  ;
 
