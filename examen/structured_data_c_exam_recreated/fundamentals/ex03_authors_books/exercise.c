@@ -92,6 +92,7 @@ void print_all_books_written_by(char *author_lastname)
     {
         free(line);
         fclose(f);
+        fclose(g);
         return ;
     }
     while(getline(&line,&size,f)!=-1)
