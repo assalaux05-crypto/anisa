@@ -1,0 +1,10 @@
+{
+  "class": {
+    "name": "S3",
+    "students": [
+      {"id": 1, "name": "Amina", "grade": 16},
+      {"id": 2, "name": "Yacine", "grade": 12},
+      {"id": 3, "name": "Imane", "grade": 18}
+    ]
+  }
+}

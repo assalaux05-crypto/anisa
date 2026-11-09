@@ -1,13 +1,23 @@
-#include "exercise.h"
 #include <stdio.h>
+
+int json_update_semester(const char *filename, int semester);
+
 int main(void)
 {
-    char course[64];
-    int year;
-    if (json_get_string("course.json", "course", course, sizeof(course)) == 0)
-        printf("Course: %s\n", course);
-    if (json_get_int("course.json", "year", &year) == 0)
-        printf("Year: %d\n", year);
-    printf("Students: %d\n", json_count_students("course.json"));
+    const char *fichier = "course.json";
+
+    printf("Mise a jour du semestre a 2 dans %s...\n", fichier);
+
+    int res = json_update_semester(fichier, 2);
+
+    if (res == 0)
+    {
+        printf("Succes ! Le fichier %s a bien ete modifie.\n", fichier);
+    }
+    else
+    {
+        printf("Erreur : la fonction a renvoye %d. Verifie le nom du fichier ou son contenu.\n", res);
+    }
+
     return 0;
 }

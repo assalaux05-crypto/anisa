@@ -1,0 +1,14 @@
+
+
+
+
+
+csv 
+
+line vide lu par getline line [0]=='\n'
+pour un fichier vide getline ==-1 donc faut pas oublie fclose et free
+get line lis \n il faut lecrasser si jai besoin len de line pour recopier line 
+pour strtol recomende 
+char* end=NULL;
+long val=strtol(id,&end,10)
+if(end==id || *end!='\0)continue invalide 

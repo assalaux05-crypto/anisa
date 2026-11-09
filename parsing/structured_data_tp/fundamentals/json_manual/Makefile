@@ -1,7 +1,7 @@
 CC = cc
 CFLAGS = -std=c99 -Wall -Wextra -Werror -pedantic -g
 NAME = exo
-SRC = main.c $(wildcard *.c)
+SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)
 
 all: $(NAME)
