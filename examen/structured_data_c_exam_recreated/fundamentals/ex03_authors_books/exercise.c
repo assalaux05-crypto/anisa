@@ -100,10 +100,12 @@ void print_all_books_written_by(char *author_lastname)
     {
 
         if(line[0]=='\n')continue;
-        id=strtok(line,",");
-        if(!id)continue;
-        char*name=strtok(NULL,",");
-        if(!name)continue;
+        id=line;
+        char* v=strchr(id,',');
+        *v='\0';
+        if(v==NULL)continue;
+        char*name=v+1;
+
         int len=strlen(name);
         if(len >0 && name[len-1]=='\n')
         {
@@ -117,10 +119,10 @@ void print_all_books_written_by(char *author_lastname)
             break;
 
 
-            }
-           
         }
-        fclose(f);
+           
+    }
+    fclose(f);
         if(getline(&linee,&sizee,g)==-1)
             {
                 free(line);
@@ -132,11 +134,15 @@ void print_all_books_written_by(char *author_lastname)
             }
             while(getline(&linee,&sizee,g)!=-1)
             {
-                char*i=strtok(linee,",");
-                if(!i)continue;
-                char*book=strtok(NULL,",");
-                if(!book)continue;
-                char*au_id=strtok(NULL,",");
+                char*i=line;
+                char*v=strchr(i,',');
+                if(v==NULL)continue;
+                *v='\0';
+                char*book=v+1;
+                v=strchr(book,',');
+                if(v==NULL)continue;
+                *v='\0';
+                char*au_id=v+1;
                 if(!au_id)continue;
                 int len=strlen(au_id);
                 if(len >0 && au_id[len-1]=='\n')
@@ -146,7 +152,7 @@ void print_all_books_written_by(char *author_lastname)
                 int l_b=strlen(book);
                 if(l_b >0 && book[l_b-1]=='\n')
                 {
-                    book[l_b]='\0';
+                    book[l_b-1]='\0';
                 }
                 if(strcmp(id,au_id)==0)
                 {
