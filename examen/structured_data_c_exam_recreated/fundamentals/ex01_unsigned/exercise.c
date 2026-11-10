@@ -2,14 +2,15 @@
 #include "exercise.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 unsigned int  parse_unit(char *decimal)
 {
-   const char*filename="data.csv";
+   const char*filename="units.csv";
    FILE*f=fopen(filename,"r");
    if(!f)return 0;
    char*line=NULL;
    size_t size=0;
-   if(getline(&line,&size,f)!=-1)
+   if(getline(&line,&size,f)==-1)
    {
         free(line);
         fclose(f);
@@ -18,7 +19,8 @@ unsigned int  parse_unit(char *decimal)
    }
    char* token=strtok(line,",");
    int i=0;
-   int deci=0;
+   
+   int cl=0;
    while(token)
    {
         int len=strlen(token);
@@ -32,18 +34,19 @@ unsigned int  parse_unit(char *decimal)
             cl=i;
             break;
         }
-        token=strtok(token,",");
+        token=strtok(NULL,",");
         i++;
 
    }
-   int j=0;
-   while(getline(&line,&size,f)!= -1)
-   {
-        char*t=line;
+  
+        char*t=decimal;
+        int j=0;
+
         while(t && j<cl)
         {
+
             char*v=strchr(t,',');
-            if(!v)
+            if(v!=NULL)
             {
                 t=v+1;
             }
@@ -54,7 +57,7 @@ unsigned int  parse_unit(char *decimal)
             j++;
         }
         if(t==NULL)return 0;
-        char* n=strchr(t,",");
+        char* n=strchr(t,',');
         size_t len;
         if(n!=NULL)
         {
@@ -68,13 +71,12 @@ unsigned int  parse_unit(char *decimal)
         char buff[234];
         memcpy(buff,t,len);
         buff[len]='\0';
-        if(strcmp(buff,decimal)==0)
-        {
+       
             unsigned int res=atoi(buff);
             return res;
-        }
+       
         
-   }
+   
    free(line);
    fclose(f);
    return -1;

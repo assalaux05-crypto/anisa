@@ -113,17 +113,11 @@ void print_all_books_written_by(char *author_lastname)
         }
         if(strcmp(name,author_lastname)==0)
         {
-            
-            
-           
             break;
-
-
-        }
-           
+        }   
     }
     fclose(f);
-        if(getline(&linee,&sizee,g)==-1)
+    if(getline(&linee,&sizee,g)==-1)
             {
                 free(line);
                 free(linee);
@@ -134,7 +128,7 @@ void print_all_books_written_by(char *author_lastname)
             }
             while(getline(&linee,&sizee,g)!=-1)
             {
-                char*i=line;
+                char*i=linee;
                 char*v=strchr(i,',');
                 if(v==NULL)continue;
                 *v='\0';
