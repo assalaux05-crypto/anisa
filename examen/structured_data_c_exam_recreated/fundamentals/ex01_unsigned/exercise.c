@@ -29,7 +29,7 @@ unsigned int  parse_unit(char *decimal)
             token[len-1]='\0';
 
         }
-        if(strcmp(token,decimal)==0)
+        if(strcmp(token,"decimal")==0)
         {
             cl=i;
             break;
