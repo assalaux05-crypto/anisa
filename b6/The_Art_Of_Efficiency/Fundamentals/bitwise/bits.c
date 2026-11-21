@@ -39,13 +39,15 @@ ajouter bit a mon res => mais avant faut lui liberer une place avec un decalage 
 
 uint8_t extract_bits(uint8_t value, unsigned int start, unsigned int count)
 {
-    uint8_t res=0;;
+    uint8_t res=0;
+    //la valeur doit etre inversee 
     
-    for(unsigned int i=start;i<count+start;i++)
+    for(unsigned int i=count;i > 0;i--)
     {
-        uint8_t m=1<<i;
+        uint8_t m=1<<(start+i-1);
         uint8_t bit= value & m;
-        bit=bit >> i;
+        
+        bit=bit >> (start+i-1);
         res=res << 1 ;
         res=res | bit;
     }

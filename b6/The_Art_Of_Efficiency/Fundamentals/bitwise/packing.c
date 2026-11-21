@@ -15,19 +15,19 @@ struct record
 uint32_t pack_record(const struct record *record)
 {
     uint32_t res=0;
-    uint32_t a=record->id[0];
+    uint32_t a=(uint8_t)record->id[0];
     res=res|a;
 
-    uint32_t b=record->id[1];
+    uint32_t b=(uint8_t)record->id[1];
     b=b<<8;
     res=res | b;
-    uint32_t type=record->type;
+    uint32_t type=record->type & 0x0F; // 0000 1111
     type=type<<16;
     res=res | type;
-    uint32_t p=record->priority;
+    uint32_t p=record->priority & 0x03; // 0000 0011
     p=p<<20;
     res=res | p;
-    uint32_t v=record->value;
+    uint32_t v=record->value & 0x03FF; // 0000 0000 0000 0011 1111 1111
     v=v <<22;
     res =res | v;
     return res;
@@ -170,9 +170,9 @@ void unpack_firefly(const uint8_t *packed, struct firefly *firefly)
         firefly->name[len]='\0';
 
         uint8_t m=0x0F;//0000 1111
-        firefly->light_type=packed[len] & m;
+        firefly->light_type=packed[len+1] & m;
         uint8_t mm=0xF0;
-        firefly->leg_count=packed[len] & mm;
+        firefly->leg_count=packed[len+1] & mm >> 4;
 }
 
 /*

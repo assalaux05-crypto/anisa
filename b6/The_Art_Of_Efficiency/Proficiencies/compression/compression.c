@@ -70,7 +70,7 @@ uint8_t *rle_decompress(const uint8_t *data, size_t size, size_t *bit_count)
         {
             r=1;
         }
-        size_t nb_o=size/8+r;
+        size_t nb_o=cpt/8+r;
         uint8_t*box=calloc(nb_o,sizeof(uint8_t));
         size_t idx=0;
         if(!box)return NULL;

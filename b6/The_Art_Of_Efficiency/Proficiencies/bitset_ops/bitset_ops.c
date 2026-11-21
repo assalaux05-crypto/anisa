@@ -129,25 +129,33 @@ struct bitset *bitset_symmetric_difference(const struct bitset *a,
     }
     return box;
 }
-
 int bitset_is_subset(const struct bitset *a, const struct bitset *b)
 {
-   if(!a || !b)return 0;
-   size_t r=0;
-   if(a->size%8!=0)
-   {
-    r=1;
-   }
-   size_t nb_o=a->size/8+r;
-   for(size_t i=0;i<nb_o;i++)
-   {
-        uint8_t res=a->data[i] & ~b->data[i];
-        if(res!=0)
+    if (!a || !b) return 0;
+    size_t r = 0;
+    if (a->size % 8 != 0)
+    { r = 1;
+    }
+    size_t nb_a = a->size / 8 + r;
+    r = 0;
+    if (b->size % 8 != 0)
+    {
+        r = 1;
+    }
+    size_t nb_b = b->size / 8 + r;
+    for (size_t i = 0; i < nb_a; i++)
+    {
+        uint8_t bv = 0;
+        if (i < nb_b)
+        {
+            bv = b->data[i];
+        }
+        uint8_t res = a->data[i] & ~bv; //la "~" est pour inverser les bits de b
+        if (res != 0)
         {
             return 0;
-        }
-   }
-   return 1;
+        }}
+    return 1;
 }
 /*
 #include "bitset_ops.h"
