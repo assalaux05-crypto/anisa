@@ -14,89 +14,151 @@ struct bitset
 
 
 */
-struct bitset *bitset_union(const struct bitset *a, const struct bitset *b)
+
+#include "bitset_ops.h"
+
+#include <stdlib.h>
+
+static size_t cnt_byte(size_t size)
 {
+    size_t r = 0;
 
-    if(!a || !b)return NULL;
-    struct bitset*box=malloc(sizeof (struct bitset));
-    
-    if(!box)return NULL;
-    box->size=a->size;
-    size_t r=0;
-    if(box->size%8!=0)
+    if (size % 8 != 0)
     {
-        r=1;
+        r = 1;
     }
-    size_t nb_o=box->size/8+r;
-    box->data=calloc(nb_o,sizeof(uint8_t));
-    if(!box->data)
-    {
-        free(box);
 
+    return size / 8 + r;
+}
+
+static uint8_t getB(const struct bitset *bs, size_t i)
+{
+    size_t nb = cnt_byte(bs->size);
+
+    if (i >= nb)
+    {
+        return 0;
+    }
+
+    uint8_t value = bs->data[i];
+
+    if (i == nb - 1 && bs->size % 8 != 0)
+    {
+        uint8_t mask = (1 << (bs->size % 8)) - 1; 
+        value = value & mask;
+    }
+
+    return value;
+}
+
+static struct bitset *create_result(size_t size)
+{
+    struct bitset *box = malloc(sizeof(struct bitset));
+
+    if (!box)
+    {
         return NULL;
     }
-    for (size_t i=0;i<nb_o;i++)
+
+    box->size = size;
+
+    size_t nb_o = cnt_byte(size);
+    box->data = NULL;
+
+    if (nb_o != 0)
     {
-        box->data[i]=a->data[i] | b->data[i];
+        box->data = calloc(nb_o, sizeof(uint8_t));
 
+        if (!box->data)
+        {
+            free(box);
+            return NULL;
+        }
     }
-    return box;
 
+    return box;
+}
+
+struct bitset *bitset_union(const struct bitset *a,
+                            const struct bitset *b)
+{
+    if (!a || !b)
+    {
+        return NULL;
+    }
+
+    size_t size = a->size;
+
+    if (b->size > size)
+    {
+        size = b->size;
+    }
+
+    struct bitset *box = create_result(size);
+
+    if (!box)
+    {
+        return NULL;
+    }
+
+    size_t nb_o = cnt_byte(size);
+
+    for (size_t i = 0; i < nb_o; i++)
+    {
+        uint8_t av = getB(a, i);
+        uint8_t bv = getB(b, i);
+
+        box->data[i] = av | bv;
+    }
+
+    return box;
 }
 
 struct bitset *bitset_intersection(const struct bitset *a,
                                    const struct bitset *b)
 {
-    if(!a || !b)return NULL;
-    struct bitset*box=malloc(sizeof (struct bitset));
-    
-    if(!box)return NULL;
-    box->size=a->size;
-    size_t r=0;
-    if(box->size%8!=0)
+    if (!a || !b)
     {
-        r=1;
-    }
-    size_t nb_o=box->size/8+r;
-    box->data=calloc(nb_o,sizeof(uint8_t));
-    if(!box->data)
-    {
-        free(box);
-
         return NULL;
     }
-    for (size_t i=0;i<nb_o;i++)
+    size_t size = a->size;
+    if (b->size > size)
     {
-        box->data[i]=a->data[i] & b->data[i];
-
+        size = b->size;
+    }
+    struct bitset *box = create_result(size);
+    if (!box)
+    {
+        return NULL;
+    }
+    size_t nb_o = cnt_byte(size);
+    for (size_t i = 0; i < nb_o; i++)
+    {
+        uint8_t av = getB(a, i);
+        uint8_t bv = getB(b, i);
+        box->data[i] = av & bv;
     }
     return box;
 }
 
-struct bitset *bitset_difference(const struct bitset *a, const struct bitset *b)
+struct bitset *bitset_difference(const struct bitset *a,
+                                 const struct bitset *b)
 {
-    if(!a || !b)return NULL;
-    struct bitset*box=malloc(sizeof (struct bitset));
-    
-    if(!box)return NULL;
-    box->size=a->size;
-    size_t r=0;
-    if(box->size%8!=0)
+    if (!a || !b)
     {
-        r=1;
-    }
-    size_t nb_o=box->size/8+r;
-    box->data=calloc(nb_o,sizeof(uint8_t));
-    if(!box->data)
-    {
-        free(box);
-
         return NULL;
     }
-    for (size_t i=0;i<nb_o;i++)
+    struct bitset *box = create_result(a->size);
+    if (!box)
     {
-        box->data[i]=a->data[i] & ~b->data[i];
-
+        return NULL;
+    }
+    size_t nb_o = cnt_byte(a->size);
+    for (size_t i = 0; i < nb_o; i++)
+    {
+        uint8_t av = getB(a, i);
+        uint8_t bv = getB(b, i);
+        box->data[i] = av & ~bv;
     }
     return box;
 }
@@ -104,59 +166,51 @@ struct bitset *bitset_difference(const struct bitset *a, const struct bitset *b)
 struct bitset *bitset_symmetric_difference(const struct bitset *a,
                                            const struct bitset *b)
 {
-   if(!a || !b)return NULL;
-    struct bitset*box=malloc(sizeof (struct bitset));
-    
-    if(!box)return NULL;
-    box->size=a->size;
-    size_t r=0;
-    if(box->size%8!=0)
+    if (!a || !b)
     {
-        r=1;
-    }
-    size_t nb_o=box->size/8+r;
-    box->data=calloc(nb_o,sizeof(uint8_t));
-    if(!box->data)
-    {
-        free(box);
-
         return NULL;
     }
-    for (size_t i=0;i<nb_o;i++)
+    size_t size = a->size;
+    if (b->size > size)
     {
-        box->data[i]=a->data[i] ^ b->data[i];
-
+        size = b->size;
+    }
+    struct bitset *box = create_result(size);
+    if (!box)
+    {
+        return NULL;
+    }
+    size_t nb_o = cnt_byte(size);
+    for (size_t i = 0; i < nb_o; i++)
+    {
+        uint8_t av = getB(a, i);
+        uint8_t bv = getB(b, i);
+        box->data[i] = av ^ bv;
     }
     return box;
 }
-int bitset_is_subset(const struct bitset *a, const struct bitset *b)
+
+int bitset_is_subset(const struct bitset *a,
+                     const struct bitset *b)
 {
-    if (!a || !b) return 0;
-    size_t r = 0;
-    if (a->size % 8 != 0)
-    { r = 1;
-    }
-    size_t nb_a = a->size / 8 + r;
-    r = 0;
-    if (b->size % 8 != 0)
+    if (!a || !b)
     {
-        r = 1;
+        return 0;
     }
-    size_t nb_b = b->size / 8 + r;
-    for (size_t i = 0; i < nb_a; i++)
+    size_t nb_o = cnt_byte(a->size);
+    for (size_t i = 0; i < nb_o; i++)
     {
-        uint8_t bv = 0;
-        if (i < nb_b)
-        {
-            bv = b->data[i];
-        }
-        uint8_t res = a->data[i] & ~bv; //la "~" est pour inverser les bits de b
+        uint8_t av = getB(a, i);
+        uint8_t bv = getB(b, i);
+        uint8_t res = av & ~bv;
         if (res != 0)
         {
             return 0;
-        }}
+        }
+    }
     return 1;
 }
+
 /*
 #include "bitset_ops.h"
 

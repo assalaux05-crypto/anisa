@@ -9,16 +9,11 @@ struct firefly
     int slow_flight;
     int turned_on;
     int invincible;
-};
+}; 
 */
 struct firefly
 {
-    unsigned int big : 1; // int 1 bit au lieu 4
-    unsigned int bright : 1;
-    unsigned int long_legs : 1;
-    unsigned int slow_flight : 1;
-    unsigned int turned_on : 1;
-    unsigned int invincible : 1;
+    unsigned char flags; // 8 bits et nous on a besoin que de 6
 };
 enum firefly_attrib
 {

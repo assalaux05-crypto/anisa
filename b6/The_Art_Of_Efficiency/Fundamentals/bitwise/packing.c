@@ -138,7 +138,7 @@ void pack_firefly(const struct firefly *firefly, uint8_t *packed)
         packed[i+1]=firefly->name[i];
     }
     uint8_t res=0;
-    uint8_t a=firefly->light_type;
+    uint8_t a=firefly->light_type & 0x0F; // 0000 1111
     // je veux que les 4 bits
     // je peux faire un masque qui contient 1 dans la partie que je veux recuperer et apres un and
     for (int i=3;i>-1;i--)
@@ -160,7 +160,7 @@ void pack_firefly(const struct firefly *firefly, uint8_t *packed)
 
 void unpack_firefly(const uint8_t *packed, struct firefly *firefly)
 {
-        if(!packed || ! firefly)return;
+        if(!packed || !firefly) return;
 
         int len=packed[0];
         for (int i=0;i<len;i++)
@@ -172,7 +172,7 @@ void unpack_firefly(const uint8_t *packed, struct firefly *firefly)
         uint8_t m=0x0F;//0000 1111
         firefly->light_type=packed[len+1] & m;
         uint8_t mm=0xF0;
-        firefly->leg_count=packed[len+1] & mm >> 4;
+        firefly->leg_count= (packed[len+1] & mm )>> 4;
 }
 
 /*

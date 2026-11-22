@@ -33,104 +33,43 @@ enum firefly_attrib
 
 
 */
+
 struct firefly *firefly_init(void)
 {
-    struct firefly*box=malloc(sizeof(struct firefly));
-    if(!box)return NULL;
-    box->big = 0;
-    box->bright = 0;
-    box->long_legs = 0;
-    box->slow_flight = 0;
-    box->turned_on = 0;
-    box->invincible = 0;
-
+    struct firefly *box = malloc(sizeof(struct firefly));
+    if (!box) return NULL;
+    box->flags = 0;
     return box;
 }
 
-char firefly_get(struct firefly *firefly, enum firefly_attrib attrib)
+char firefly_get(struct firefly *firefly,
+                 enum firefly_attrib attrib)
 {
-    
-    
-   if (attrib == FLAG_BIG)
-   {
-    return firefly->big;
-   }
-        
-    else if (attrib == FLAG_BRIGHT)
-    {
-                return firefly->bright;
+    int wght = 1;
+    for (int i = 0; i < attrib; i++)
+        wght *= 2;
+    return (firefly->flags / wght) % 2;
+}
 
-    }
-    else if (attrib == FLAG_LONG_LEGS)
+void firefly_set(struct firefly *firefly,
+                 enum firefly_attrib attrib,
+                 int value)
+{
+    int wght = 1;
+    for (int i = 0; i < attrib; i++)
+        wght *= 2;
+    if (value != 0)
     {
-                return firefly->long_legs;
-
-    }
-    else if (attrib == FLAG_SLOW_FLIGHT)
-    {
-        return firefly->slow_flight;
-
-    }
-    else if (attrib == FLAG_TURNED_ON)
-    {
-        return firefly->turned_on;
-
-    }
-    else if (attrib == FLAG_INVINCIBLE)
-    {
-        return firefly->invincible;
-
+        if ((firefly->flags / wght) % 2 == 0)
+            firefly->flags += wght;
     }
     else
     {
-                return 0;
-
+        if ((firefly->flags / wght) % 2 == 1)
+            firefly->flags -= wght;
     }
-
-
-
-
 }
 
-void firefly_set(struct firefly *firefly, enum firefly_attrib attrib, int value)
-{
-    
-   
-
-
-    if (attrib == FLAG_BIG)
-   {
-     firefly->big=value;
-   }
-        
-    else if (attrib == FLAG_BRIGHT)
-    {
-         firefly->bright =value ;
-
-    }
-    else if (attrib == FLAG_LONG_LEGS)
-    {
-        firefly->long_legs =value ;
-
-    }
-    else if (attrib == FLAG_SLOW_FLIGHT)
-    {
-        firefly->slow_flight =value ;
-
-    }
-    else if (attrib == FLAG_TURNED_ON)
-    {
-        firefly->turned_on =value ;
-
-    }
-    else if (attrib == FLAG_INVINCIBLE)
-    {
-         firefly->invincible =value ;
-
-    }
-   
-
-}
 
 
 /*
